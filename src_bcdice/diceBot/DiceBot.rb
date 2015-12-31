@@ -8,7 +8,7 @@ class DiceBot
   
   def initialize
     @sendMode = @@DEFAULT_SEND_MODE #(0=結果のみ,1=0+式,2=1+ダイス個別)
-    @sortType = 0      #ソート設定(1 = ?, 2 = ??, 3 = 1&2　各値の意味が不明です…）
+    @sortType = 0      #ソート設定(1 = 足し算ダイスでソート有, 2 = バラバラロール（Bコマンド）でソート有, 3 = １と２両方ソート有）
     @sameDiceRerollCount = 0     #ゾロ目で振り足し(0=無し, 1=全部同じ目, 2=ダイスのうち2個以上同じ目)
     @sameDiceRerollType = 0   #ゾロ目で振り足しのロール種別(0=判定のみ, 1=ダメージのみ, 2=両方)
     @d66Type = 0        #d66の差し替え(0=D66無し, 1=順番そのまま([5,3]->53), 2=昇順入れ替え([5,3]->35)
@@ -309,6 +309,14 @@ class DiceBot
   #シャドウラン4版用グリッチ判定
   def getGrichText(numberSpot1, dice_cnt_total, suc)
     ''
+  end
+  
+  # SW2.0 の超成功用
+  def check2dCritical(critical, dice_new, dice_arry)
+  end
+  
+  def is2dCritical
+    false
   end
   
   def getDiceList

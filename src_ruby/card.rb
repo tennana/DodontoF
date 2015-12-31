@@ -90,6 +90,12 @@ class Card
          'fileName' => 'cards/torg_English.txt',
        },
        
+       { 'type' => 'hanafuda',
+         'title' => '花札',
+         'fileName' => 'cards/hanafuda.txt',
+#         'fileName' => 'cards/hanafuda_dodontof.txt',
+       },
+       
        { 'type' => 'bladeOfArcana',
          'title' => 'ブレイド・オブ・アルカナ：タロット',
          'fileName' => 'cards/bladeOfArcana.txt',
