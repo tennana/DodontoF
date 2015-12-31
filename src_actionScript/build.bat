@@ -1,0 +1,1 @@
+mxmlc.exe -target-player=10.0.12 -define=TEST::isTest,false -define=COMPILE::isReplayer,false -define=COMPILE::isMySql,false -include-libraries+=./corelib/bin/corelib.swc -o ../DodontoF.swf DodontoF.mxml 
