@@ -165,6 +165,7 @@ package com.pusher{
 			bind(PusherConstants.CONNECTION_ESTABLISHED_EVENT_NAME, onPusherConnectionEstablished);
 			bind(PusherConstants.CONNECTION_DISCONNECTED_EVENT_NAME, onPusherDisconnected);
 			bind(PusherConstants.ERROR_EVENT_NAME, onPusherError);
+			bind(PusherConstants.PING_EVENT_NAME, onPusherPing);
 		}
 		
 		static protected function defaultLogger(msg:String):void{}
@@ -496,6 +497,14 @@ package com.pusher{
 		 */
 		protected function onPusherError(data:Object):void{
 			log("Pusher : error : " + data.message);
+		}
+		
+		/**
+		 * @private
+		 */
+		protected function onPusherPing(data:Object):void{
+			log("Pusher : Ping");
+			sendEvent(PusherConstants.PONG_EVENT_NAME,{});
 		}
 		
 		/** 

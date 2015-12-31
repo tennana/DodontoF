@@ -29,5 +29,8 @@ package com.pusher{
 		// End user should not need these since they can call methods that use these.
 		static public const SUBSCRIBE_EVENT_NAME:String = "pusher:subscribe";
 		static public const UNSUBSCRIBE_EVENT_NAME:String = "pusher:unsubscribe";
+
+		static public const PING_EVENT_NAME:String = "pusher:ping"
+		static public const PONG_EVENT_NAME:String = "pusher:pong"
 	}
 }
