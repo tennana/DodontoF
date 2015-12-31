@@ -103,8 +103,11 @@ function getQueryParams() {
 }
 
 function trace( obj ) {
-    return;
+//    return;
+    trace_force( obj );
+}
     
+function trace_force( obj ) {
     var text = '';
     
     if( typeof(obj) == 'object' ){
@@ -251,12 +254,14 @@ function getServerUrl() {
 }
 
 
-var lastTime = 0;
+var chatLastTime = 0;
+var playRoomTime = 0;
+var chatChannelNames = [];
 
 function beginClient() {    
     initClient();
     
-    getChatLog();
+    refresh();
 }
 
 
@@ -266,8 +271,8 @@ function setAutoReload() {
     clearAutoReload();
     
     if( $("#autoReload").attr("checked") ) {
-        getChatLog();
-        autoReloadTimer = setInterval(getChatLog, 5000);
+        refresh();
+        autoReloadTimer = setInterval(refresh, 5000);
     }
 }
 
@@ -317,7 +322,7 @@ function initClient() {
     trace(url);
     
     jQuery.getJSON(url, function(data) {
-        //trace(data);
+        trace(data);
         
         if( data.result != "OK" ) {
             alert( "ERROR: " + data.result );
@@ -394,37 +399,50 @@ function changeGameType() {
 
 //./DodontoFServer.rb?webif=chat&room=10&time=0
 
-function getChatLog() {
-    trace("getChatLog Begin");
+function refresh() {
+    trace("refresh Begin");
     
     roomNo = $("#roomNo").val();
     
-    url = getServerUrl() + "?webif=chat&room=" + roomNo + "&time=" + lastTime + "&callback=?"
+    url = getServerUrl() + "?webif=refresh&room=" + roomNo + "&chat=" + chatLastTime + "&roomInfo=" + playRoomTime + "&callback=?"
     trace(url);
     
-    jQuery.getJSON(url, getChatLogResult);
+    jQuery.getJSON(url, analyzeRefreshResult);
     
-    trace("getChatLog End");
+    trace("refresh End");
 }
 
-function getChatLogResult(data) {
-    trace(data);
-    
+function analyzeRefreshResult(data) {
     if( data == null ) {
-        return;
+        return null;
     }
     
     if( data.result != "OK" ) {
         alert( "ERROR: " + data.result );
+        return null;
+    }
+    
+    analyzeRoomResult(data);
+    analyzeChatLogResult(data);
+}
+
+function analyzeRoomResult(data) {
+    trace("analyzeRoomResult");
+    
+    var roomInfo = data.roomInfo;
+    if( roomInfo == null ) {
         return;
     }
     
-    var chats = data.chatMessageDataLog;
+    chatChannelNames = roomInfo.chatChannelNames;
+    trace(chatChannelNames);
+}
+
+function analyzeChatLogResult(data) {
+    trace(data);
     
+    var chats = getChatsFromServerData(data);
     if( chats == null ) {
-        return;
-    }
-    if( chats.length == 0 ) {
         return;
     }
     
@@ -434,27 +452,40 @@ function getChatLogResult(data) {
     
     var html = "";
     for (var i = 0; i < chats.length; i++) {
-        var data = chats[i];
-        var time = data[0];
+        var chat = chats[i];
+        var time = chat[0];
         
-        if( time <= lastTime ) {
+        if( time <= chatLastTime ) {
             continue;
         }
-        lastTime = time;
+        chatLastTime = time;
         
-        var params = data[1];
+        var params = chat[1];
         
-        var name = params.senderName;
-        var color = params.color;
+        var channel = params.channel;
         var message = getPrintMessage(params.message);
         
-        html += getMessageHtml(color, name, message);
+        html += getMessageHtml(params, message);
     }
     
     printMessage(html);
     
-    trace(lastTime);
+    trace(chatLastTime);
 }
+
+function getChatsFromServerData(data) {
+    var chats = data.chatMessageDataLog;
+    
+    if( chats == null ) {
+        return null;
+    }
+    if( chats.length == 0 ) {
+        return null;
+    }
+    
+    return chats;
+}
+
 
 function printMessage(html) {
     trace( html );
@@ -463,7 +494,7 @@ function printMessage(html) {
 }
 
 
-var cutInReg = /###CutInCommand:(.+)###(.+)/;
+var cutInReg = /###CutInCommand:(\w+)###(.+)/;
 
 function getPrintMessage(message) {
     
@@ -474,7 +505,7 @@ function getPrintMessage(message) {
     }
     
     var json = result[2];
-    data = JSON.parse( json );
+    var data = JSON.parse( json );
     
     var result = data.chatMessage;
     trace(result);
@@ -483,8 +514,29 @@ function getPrintMessage(message) {
 }
 
 
-function getMessageHtml(color, name, message) {
-    return '<div style="color:#' + color + ';" >' + name + ' : ' + message + '</div>';
+function getMessageHtml(params, message) {
+    var name = params.senderName;
+    var color = params.color;
+    var channel = params.channel;
+    if( channel == undefined ) {
+        channel = 0;
+    }
+    
+    var channelText = getChannelText(channel);
+    
+    return '<div style="color:#' + color + ';" >' + channelText + name + ' : ' + message + '</div>';
+}
+
+function getChannelText(channel) {
+    if( channel == 0 ) {
+        return "";
+    }
+    
+    if( channel >= chatChannelNames.length ) {
+        return "";
+    }
+    
+    return "　　<i>[" + chatChannelNames[channel] + "]</i> ";
 }
 
 
@@ -517,7 +569,7 @@ function sendMessage () {
     jQuery.getJSON(url, function(data){
     })
     .done(function(json) {
-        getChatLog();
+        refresh();
     })
     .error(function(jqXHR, textStatus, errorThrown) {
         $("#text").val(text);
@@ -760,7 +812,7 @@ function getCookie(key) {
     <label id="color" >■</label><label>NAME</label>
     <input id="name" value="" style="width: 75px; " /><label> : </label>
     <input id="text" value="" style="width:150px; " />
-    <input id="reloadButton" type="button" onClick="getChatLog()" value="更新" />
+    <input id="reloadButton" type="button" onClick="refresh()" value="更新" />
     <input type="checkbox" id="autoReload" onClick="setAutoReload()" >自動更新（5秒）
   </div>
   

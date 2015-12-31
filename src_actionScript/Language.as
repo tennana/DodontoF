@@ -10,7 +10,11 @@ package {
         static public var s:Object = new Object();
         
         static private var japaneseDefault:Object = new Object();
+        
+        //言語設定用。日本語なら"Japanese"、英語なら"English"
+        static private var currentLanguage:String = "";
         static private var languageTable:Object = new Object();
+        
         static private var isInitialized:Boolean = false;
         
         static public function setup():void {
@@ -23,6 +27,7 @@ package {
             p.language = "日本語";
             p.title = "どどんとふ";
             p.loginWindowTitle = "ログイン";
+            p.selectLanguageMessage = "";
             p.yourName = "あなたのお名前（初回ログイン用）";
             p.createNewPlayRoom = "新規プレイルーム作成";
             p.deleteSelectedPlayRoom = "指定プレイルームを削除";
@@ -345,6 +350,8 @@ package {
             
             p.discardMessage = "{0}がカードを捨てました。";
             p.discardMessageWithCardName = "{0}が「{1}」を捨てました。";
+            p.returnCardMessage = "{0}がカードを山札に戻しました。";
+            p.returnCardMessageWithCardName = "{0}が「{1}」を山札に戻しました。";
             p.openCardMessage = "{0}がカードを公開しました。「{1}」";
             p.changeCardOwnerMessage = "{0}が「{1}」のカードを受け取りました。";
             p.changeCardOwnerToAnyoneMessage = "{0}が「{1}」へカードを渡しました。";
@@ -409,10 +416,12 @@ package {
             p.closeCard = "カードを伏せる（非公開）";
             p.changeCardOwnerToMe = "カードを自分の管理へ";
             p.writeCardTextToChat = "カードテキストをチャットに引用";
+            p.giveCard = "カード譲渡";
             p.deleteCard = "カード削除";
             p.changeCard = "カード変更";
             p.copyCard = "カード複製";
             p.dumpCard = "カード捨て";
+            p.returnToCardMount = "カードを山札に戻す";
             p.upSideCard = "正位置";
             p.downSideCard = "逆位置";
             p.yourAreNotCardOwner = "カードの所持者ではないため公開できません。";
@@ -422,6 +431,8 @@ package {
             p.drawCardClosed = "カードを引く：全員に非公開で";
             p.drawCardMany = "カードをN枚引く";
             p.selectCardFromMount = "山からカードを選び出す";
+            p.shuffleOnlyMountCards = "山札をシャッフルする";
+            p.shuffleMountAnnounce = "「{0}」が「{1}」の山札をシャッフルしました。";
             // CardTrushMount.as
             p.returnMountTopCardToField = "一番上のカードを場に戻す";
             p.shuffleTrushCardsAndToMount = "捨て札を山札に積んでシャッフルする";
@@ -913,6 +924,7 @@ package {
             p.nowYouAreRecordingErrorMessage = "録画中です。ログアウトするには録画を終了してください。";
             p.logoutQuestionTitle = "ログアウト確認";
             p.logoutQuestion = "ログアウトしてよろしいですか？";
+            p.deleteWhenLogout = "ログアウト時に部屋を削除する";
             p.returnToLoginWindow = "ログイン画面に戻る";
             p.returnToLoginWindowQuestion = "リプレイ再生を止め、ログイン画面に戻りますか？";
             // GuiInputSender.as
@@ -1173,9 +1185,9 @@ package {
         }
         
         
-        static public function initLanguage(languageInfos:Object):void {
+        static public function initLanguage(languageInfos:Object):String {
             if( languageInfos == null ){
-                return;
+                return "";
             }
             
             for(var name:Object in languageInfos) {
@@ -1187,6 +1199,8 @@ package {
                 languageTable[name] = info;
             }
             
+            
+            return checkLanguageNames();
         }
         
         /*
@@ -1208,8 +1222,42 @@ package {
          */
         
         
-        //言語設定用。日本語なら"Japanese"、英語なら"English"
-        static private var language:String = "";
+        static private function checkLanguageNames():String {
+            
+            var names:Array = Utils.getKeys(languageTable);
+            var langNames:Array = new Array();
+            
+            for each(var name:String in names) {
+                if( name == "" ) {
+                    continue;
+                }
+                var langName:String = languageTable[name].language;
+                var duplicate:Array = getDuplicateLangage(langNames, langName);
+                if( duplicate != null ) {
+                    var message:String = "";
+                    message += "[" + langName + "] is duplicated ! please check \r";
+                    message += "  language/" + duplicate[1] + ".txt\r";
+                    message += "  language/" + name + ".txt\r";
+                    message += "and delete old file.";
+                    return message;
+                }
+                
+                langNames.push( [langName, name] );
+            }
+            
+            return "";
+        }
+        
+        static private function getDuplicateLangage(array:Array, name:String):Array {
+            for each(var item:Array in array) {
+                var itemName:String = item[0];
+                if( itemName == name ) {
+                    return item;
+                }
+            }
+            return null;
+        }
+        
         
         //言語設定
         static public function setLanguage(lang:String):String {
@@ -1217,15 +1265,15 @@ package {
                 return "";
             }
             
-            var beforeLang:String = language;
+            var beforeLang:String = currentLanguage;
             var beforeKeys:Array = Utils.getKeys(s, diceBotLangPrefix);
             
-            language = lang;
-            Log.logging("language", language);
+            currentLanguage = lang;
+            Log.logging("language", currentLanguage);
             
-            s = languageTable[language];
+            s = languageTable[currentLanguage];
             
-            var result:String = checkDiff(beforeLang, language, beforeKeys);
+            var result:String = checkDiff(beforeLang, currentLanguage, beforeKeys);
             
             DodontoF_Main.getInstance().getDodontoF().initMenu();
             
@@ -1253,9 +1301,9 @@ package {
             
             var message:String = "Server directory \"language\" files has problem. please change language file.\r\r";
             
-            if( beforeLang != "" || language != "" ) {
+            if( beforeLang != "" || currentLanguage != "" ) {
                 message += StringUtil.substitute("Language data has different,\rbefore:{0}\rafter:{1}\r\r",
-                                                 beforeLang, language);
+                                                 beforeLang, currentLanguage);
             }
             
             message += diffString;
@@ -1264,7 +1312,7 @@ package {
         
         //言語取得
         static public function getLanguage():String {
-            return language;
+            return currentLanguage;
         }
         
         static public function getDataProvider():Array {
@@ -1278,6 +1326,11 @@ package {
             }
             
             return result;
+        }
+        
+        static public function getLangageTypes():Array {
+            var types:Array = Utils.getKeys(languageTable);
+            return types;
         }
         
     }
