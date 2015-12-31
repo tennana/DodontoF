@@ -289,6 +289,13 @@ package {
         
         //////////////////////////////////////////
         
+	public function getPusherControl():PusherControl {
+	    if(this.pusherControl == null){
+		this.pusherControl = new PusherControl("5c8061b261dcdb2c9a03");
+	    }
+	    return this.pusherControl;
+	}
+
         public function getGuiInputSender():GuiInputSender {
             return guiInputSender;
         }

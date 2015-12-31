@@ -1,6 +1,7 @@
 package
 {
 	import com.pusher.Pusher;
+	import com.pusher.PusherConstants;
 	import com.pusher.auth.PostAuthorizer;
 	import com.pusher.channel.Channel;
 
@@ -19,12 +20,20 @@ package
 			APP_KEY = appKey;
 			AUTH_ENDPOINT = Config.getInstance().getDodontoFServerCgiUrl();
 			ORIGIN = Config.getInstance().getUrlString("DodontoF.swf");
+			Pusher.enableWebSocketLogging = true;
+			Pusher.log = Log.loggingError;
+			pusher = new Pusher(APP_KEY, ORIGIN, {"encrypted":true,"secure":true}, true);
 		}
-		
+
+		private function subscription_succeededEvent(data:Object):void
+		{
+			Log.loggingError("Pusher : testEvent");
+		}
+
 		public function initPusherConnection():void
 		{
-			pusher = new Pusher(APP_KEY, ORIGIN);
-			channel = pusher.subscribe("chat-demo");
+			channel = pusher.subscribe("test");
+			channel.bind("pusher_internal:subscription_succeeded",subscription_succeededEvent);
 		}
 	}
 	
