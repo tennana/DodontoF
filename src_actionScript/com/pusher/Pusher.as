@@ -143,7 +143,7 @@ package com.pusher{
 			this.options = options || {};
 			
 			// TODO: Maybe someday the client might need to be specified as something other than js.
-			connectionPath = '/app/' + applicationKey + "?client=js&version=" + VERSION;
+			connectionPath = '/app/' + applicationKey + "?client=js&version=" + VERSION + "&protocol=7";
 			_key = applicationKey;
 			
 			this.origin = origin;
