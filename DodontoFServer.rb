@@ -2278,6 +2278,7 @@ class DodontoFServer
       'canUseExternalImageModeOn' => $canUseExternalImageModeOn,
       'characterInfoToolTipMax' => [$characterInfoToolTipMaxWidth, $characterInfoToolTipMaxHeight],
       'isAskRemoveRoomWhenLogout' => $isAskRemoveRoomWhenLogout,
+      'isPusher' => $isPusher,
     }
     
     logging(result, "result")
