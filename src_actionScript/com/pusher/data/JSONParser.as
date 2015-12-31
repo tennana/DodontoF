@@ -1,7 +1,7 @@
 package com.pusher.data{
 	
 	import com.pusher.Pusher;
-	
+	import com.adobe.serialization.json.JSON;
 	
 	/**
 	 * @author Shawn Makinson, squareFACTOR, www.squarefactor.com
@@ -16,7 +16,7 @@ package com.pusher.data{
 		 */		
 		public function parse(data:String):*{
 			try{
-				return JSON.parse(data);
+				return JSON.decode(data);
 			}catch(err:Error){
 				Pusher.log("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher.parser");
 				return data;

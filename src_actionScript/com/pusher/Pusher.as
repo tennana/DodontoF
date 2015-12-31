@@ -14,7 +14,7 @@ package com.pusher{
 	import flash.utils.clearTimeout;
 	import flash.utils.setTimeout;
 	
-	
+	import com.adobe.serialization.json.JSON;
 	/**
 	 * @author Shawn Makinson, squareFACTOR, www.squarefactor.com
 	 *
@@ -367,7 +367,7 @@ package com.pusher{
 				payload['channel'] = channelName;
 			}
 			
-			connection.send(JSON.stringify(payload));
+			connection.send(JSON.encode(payload));
 			return this;
 		}
 		
@@ -454,7 +454,7 @@ package com.pusher{
 			var params:Object;
 			
 			try{
-				params = JSON.parse(decodeURIComponent(e.message));
+				params = JSON.decode(decodeURIComponent(e.message));
 			}catch(err:Error){
 				log('Pusher : Error getting message data');
 			}
