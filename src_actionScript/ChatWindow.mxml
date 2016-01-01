@@ -118,6 +118,7 @@
       </mx:Box>
       
     </mx:VDividedBox>
+	<mx:Label id="typingStatus" text="" width="90%" height="18"/>
   </mx:Box>
   
   <mx:Glow id="glowEffectForChatError"
