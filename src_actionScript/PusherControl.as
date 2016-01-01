@@ -28,12 +28,13 @@ package
 			AUTH_ENDPOINT = Config.getInstance().getDodontoFServerCgiUrl();
 			ORIGIN = Config.getInstance().getUrlString("DodontoF.swf");
 			Pusher.enableWebSocketLogging = true;
-			Pusher.log = Log.loggingError;
+			Pusher.log = Log.logging;
 			pusher = new Pusher(APP_KEY, ORIGIN, {"encrypted":true,"secure":true}, true);
 		}
 
 		private function subscription_succeededEvent(data:Object):void
 		{
+			Log.initLogWindow();
 		}
 
 		public function initPusherConnection():void
@@ -44,10 +45,7 @@ package
 		}
 
 		private function typingEvent(data:Object):void {
-			Log.loggingError("Pusher : typingEvent", data);
 			typingList.push( { "time":uint(new Date().getTime() / 1000 + typingTimeoutsec), "name":data.name } );
-			Log.loggingError("Pusher : typingEvent", typingList);
-			Log.loggingError("Pusher : typingEvent", new Date());
 			updateTypingList();
 		}
 
@@ -56,14 +54,12 @@ package
 			var i:uint;
 			var newTypingList:Array = [];
 			var nowTime:uint = uint(new Date().getTime() / 1000);
-			Log.loggingError("Pusher : typingEvent", nowTime);
 			for (i = 0; i < typingList.length; i++) {
 				if (typingList[i].time > nowTime) {
 					newTypingList.push(typingList[i]);
 				}
 			}
 			newTypingList.sortOn("time", Array.NUMERIC);
-			Log.loggingError("Pusher : typingEvent", newTypingList);
 			
 			typingList = newTypingList;
 
