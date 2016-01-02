@@ -2,6 +2,8 @@ package
 {
 	import flash.utils.Timer;
 	import flash.events.TimerEvent;
+	import flash.events.KeyboardEvent;
+	import flash.ui.Keyboard;
 
 	import com.pusher.Pusher;
 	import com.pusher.PusherConstants;
@@ -18,8 +20,11 @@ package
 		private static const SECURE:Boolean = true;
 
 		private var typingList:Array = [];
-		private var typingTimer:Timer = null;
 		private var typingTimeoutsec:uint = 60;
+		private var typingSendTimer:Timer = null;
+		private var typingStateTimer:Timer = null;
+		private var typingListener:Object = new Object();
+		private var typingEventSending:Boolean = false;
 
 		protected var pusher:Pusher;
 		protected var channel:Channel;
@@ -40,24 +45,61 @@ package
 			ORIGIN = Config.getInstance().getUrlString("DodontoF.swf");
 			Pusher.enableWebSocketLogging = true;
 			Pusher.log = Log.logging;
-			pusher = new Pusher(APP_KEY, ORIGIN, {"encrypted":true,"secure":true}, true);
 			Pusher.authorizer = new PostAuthorizer(AUTH_ENDPOINT);
+			pusher = new Pusher(APP_KEY, ORIGIN, {"encrypted":true,"secure":true}, false);
+		}	
+
+		private function channel_member_changed(data:Object):void
+		{
+			// 部屋情報の再取得とかさせたくない？
+		}
+
+		private function channel_member_removed(data:Object):void
+		{
+			removeTypingList(data.user_id);
 		}
 
 		private function subscription_succeededEvent(data:Object):void
 		{
-			Log.initLogWindow();
+			DodontoF_Main.getInstance().getChatWindow().chatMessageInput.addEventListener(KeyboardEvent.KEY_DOWN , typingKeyDownFunc);
+			DodontoF_Main.getInstance().getChatWindow().chatMessageInput.addEventListener(KeyboardEvent.KEY_UP , typingKeyUpFunc);
 		}
 
 		public function initPusherConnection():void
 		{
-			channel = pusher.subscribe("test");
+			channel = pusher.subscribeAsPresence("DodontoF-"+Pusher_Channel_prefix+DodontoF_Main.getInstance().getPlayRoomNumber());
 			channel.bind("pusher_internal:subscription_succeeded",subscription_succeededEvent);
-			channel.bind("typingEvent", typingEvent);
+			channel.bind("pusher_internal:member_added",channel_member_changed);
+			channel.bind("pusher_internal:member_removed",channel_member_changed);
+			channel.bind("pusher_internal:member_removed", channel_member_removed);
+			if(canUsePusher_ClientEvent){
+				channel.bind("client-typingStartEvent", typingStartEvent);
+				channel.bind("client-typingEndEvent", typingEndEvent);
+			} else {
+				channel.bind("typingStartEvent", typingStartEvent);
+				channel.bind("typingEndEvent", typingEndEvent);
+			}
+			pusher.connect();
 		}
 
-		private function typingEvent(data:Object):void {
-			typingList.push( { "time":uint(new Date().getTime() / 1000 + typingTimeoutsec), "name":data.name } );
+		private function typingStartEvent(data:Object):void {
+			typingList.push( { "time":uint(new Date().getTime() / 1000 + typingTimeoutsec), "name":data.name , "uniqueId":data.uniqueId} );
+			updateTypingList();
+		}
+
+		public function typingEndEvent(data:Object):void
+		{
+			removeTypingList(data.uniqueId);
+		}
+
+		public function removeTypingList(uniqueId:String):void
+		{
+			var i:uint;
+			for (i = 0; i < typingList.length; i++) {
+				if(typingList[i].uniqueId == uniqueId){
+					typingList[i].time = -1;
+				}
+			}
 			updateTypingList();
 		}
 
@@ -87,15 +129,63 @@ package
 			
 			DodontoF_Main.getInstance().getChatWindow().typingStatus.text = sTyping;
 
-			if (typingTimer != null) {
-				typingTimer.stop();
+			if(!canUsePusher_ClientEvent){
+				if (typingStateTimer != null) {
+					typingStateTimer.stop();
+				}
+				typingStateTimer = new Timer((newTypingList[0].time - nowTime + 1) * 1000,1);
+				typingStateTimer.addEventListener(TimerEvent.TIMER_COMPLETE, updateTypingList);
+				typingStateTimer.start();
 			}
-			typingTimer = new Timer((newTypingList[0].time - nowTime + 1) * 1000,1);
-			typingTimer.addEventListener(TimerEvent.TIMER_COMPLETE, updateTypingList);
-			typingTimer.start();
 
 			return typingList.length;
 		}
+		
+		private function typingKeyUpFunc(event:KeyboardEvent):void
+		{
+			if( typingSendTimer == null ){
+			} else if ( event.keyCode == Keyboard.ENTER && !event.shiftKey && !event.ctrlKey) {
+				typingSendTimer.reset();
+				typingSendTimer = null;
+				sendTypingEnd();
+                return;
+            } else if (! typingSendTimer.running ) {
+				typingSendTimer.start();
+			}
+		}
+		
+		private function typingKeyDownFunc(event:KeyboardEvent):void
+		{
+            if( event.keyCode == Keyboard.ENTER ) {
+                return;
+            } else if ( typingSendTimer != null && typingSendTimer.currentCount < 1) {
+				typingSendTimer.reset();
+				return;
+			} else if (typingEventSending) {
+				return;
+			}
+			var sendEventData:Object = { "name" : DodontoF_Main.getInstance().getChatWindow().getChatCharacterName(), "uniqueId" : DodontoF_Main.getInstance().getUniqueId() };
+			if (canUsePusher_ClientEvent) {
+				pusher.sendEvent("client-typingStartEvent", sendEventData , channel.name);
+			} else {
+				
+			}
+			typingEventSending = true;
+			typingStartEvent(sendEventData); // 自分を表示する場合
+			typingSendTimer = new Timer(typingTimeoutsec * 1000, 1);
+			typingSendTimer.addEventListener(TimerEvent.TIMER_COMPLETE, sendTypingEnd);
+		}
+		
+		private function sendTypingEnd(e:TimerEvent = null):void
+		{
+			var sendEventData:Object = { "uniqueId" : DodontoF_Main.getInstance().getUniqueId() };
+			if (canUsePusher_ClientEvent) {
+				pusher.sendEvent("client-typingEndEvent", sendEventData  , channel.name);
+			} else {
+				
+			}
+			typingEndEvent(sendEventData);
+			typingEventSending = false;
+		}
 	}
-	
 }
