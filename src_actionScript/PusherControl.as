@@ -146,11 +146,14 @@ package
 		{
 			if( typingSendTimer == null ){
 			} else if ( event.keyCode == Keyboard.ENTER && !event.shiftKey && !event.ctrlKey) {
-				typingSendTimer.reset();
-				typingSendTimer = null;
-				sendTypingEnd();
-                return;
-            } else if (! typingSendTimer.running ) {
+				DodontoF_Main.getInstance().getChatWindow().chatMessageInput.callLater(function ():void{
+					if(DodontoF_Main.getInstance().getChatWindow().chatMessageInput.text == ""){
+						sendTypingEnd();
+					} else {
+						typingSendTimer.start();
+					}
+				});
+		        } else if (! typingSendTimer.running ) {
 				typingSendTimer.start();
 			}
 		}
@@ -184,7 +187,11 @@ package
 			}
 			typingEventSending = true;
 			typingStartEvent(sendEventData); // 自分を表示する場合
-			typingSendTimer = new Timer(typingTimeoutsec * 1000, 1);
+			if(typingSendTimer != null){
+				typingSendTimer.stop();
+				typingSendTimer = null;
+			}
+			typingSendTimer = new Timer(typingTimeoutSec * 1000, 1);
 			typingSendTimer.addEventListener(TimerEvent.TIMER_COMPLETE, sendTypingEnd);
 		}
 		
@@ -197,6 +204,10 @@ package
 				
 			}
 			typingEndEvent(sendEventData);
+			if(typingSendTimer != null){
+				typingSendTimer.stop();
+				typingSendTimer = null;
+			}
 			typingEventSending = false;
 		}
 	}
