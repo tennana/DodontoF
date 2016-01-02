@@ -289,10 +289,13 @@ package {
         
         //////////////////////////////////////////
         
-	public function getPusherControl():PusherControl {
+	public function setPusherControl(jsonData:Object):void {
 	    if(this.pusherControl == null){
-		this.pusherControl = new PusherControl("5c8061b261dcdb2c9a03");
+		this.pusherControl = new PusherControl(jsonData);
 	    }
+	}
+
+	public function getPusherControl():PusherControl {
 	    return this.pusherControl;
 	}
 

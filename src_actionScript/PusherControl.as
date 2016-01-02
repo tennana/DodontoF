@@ -13,18 +13,29 @@ package
 		private var APP_KEY:String;
 		private var AUTH_ENDPOINT:String;
 		private var ORIGIN:String;
+		private var Pusher_Channel_prefix:String = "";
+		private var canUsePusher_ClientEvent:Boolean = false;
 		private static const SECURE:Boolean = true;
 
 		private var typingList:Array = [];
-		private var typingTimeoutsec:uint = 6;
 		private var typingTimer:Timer = null;
+		private var typingTimeoutsec:uint = 60;
 
 		protected var pusher:Pusher;
 		protected var channel:Channel;
 
-		public function PusherControl(appKey:String):void 
+		public function PusherControl(jsonData:Object):void 
 		{
-			APP_KEY = appKey;
+			APP_KEY = jsonData.Pusher_APP_ID;
+			if(jsonData.Pusher_Channel_prefix){
+				Pusher_Channel_prefix = jsonData.Pusher_Channel_prefix;
+			}
+			if (jsonData.canUsePusher_ClientEvent) {
+				canUsePusher_ClientEvent = true;
+			}
+			if (jsonData.Pusher_typingTimeoutsec) {
+				typingTimeoutsec = uint(jsonData.Pusher_typingTimeoutsec);
+			}
 			AUTH_ENDPOINT = Config.getInstance().getDodontoFServerCgiUrl();
 			ORIGIN = Config.getInstance().getUrlString("DodontoF.swf");
 			Pusher.enableWebSocketLogging = true;

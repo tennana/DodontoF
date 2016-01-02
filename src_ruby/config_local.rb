@@ -31,4 +31,11 @@ $isMultilingualization = false
 # Pusher API URL
 $isPusher = true
 
+$canUsePusher_ClientEvent = true
+
 $Pusher_API_URL = "https://5c8061b261dcdb2c9a03:8aba34cd8f518f1a4373@api.pusherapp.com/apps/130760"
+$Pusher_APP_ID = "5c8061b261dcdb2c9a03"
+
+$Pusher_Channel_prefix = "";
+
+$Pusher_typingTimeoutsec = 60;

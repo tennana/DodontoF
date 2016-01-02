@@ -654,6 +654,10 @@
             DodontoF_Main.getInstance().getMap().addPaformanceMonitor();
         }
         
+	if( jsonData.isPusher ){
+		DodontoF_Main.getInstance().setPusherControl(jsonData);
+	}
+
         if( autoLoginRoom >= 0 ) {
             Log.loggingTuning("autoLoginRoom", autoLoginRoom);
             

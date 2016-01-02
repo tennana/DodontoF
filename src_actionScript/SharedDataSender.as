@@ -335,7 +335,9 @@ package {
         
         public function startRefresh():void {
             refresh();
-	    DodontoF_Main.getInstance().getPusherControl().initPusherConnection();
+            if(DodontoF_Main.getInstance().getPusherControl() != null){
+                DodontoF_Main.getInstance().getPusherControl().initPusherConnection();
+            }
             startRefreshCheckTimer();
         }
         
