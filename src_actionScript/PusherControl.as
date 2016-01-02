@@ -30,6 +30,7 @@ package
 			Pusher.enableWebSocketLogging = true;
 			Pusher.log = Log.logging;
 			pusher = new Pusher(APP_KEY, ORIGIN, {"encrypted":true,"secure":true}, true);
+			Pusher.authorizer = new PostAuthorizer(AUTH_ENDPOINT);
 		}
 
 		private function subscription_succeededEvent(data:Object):void

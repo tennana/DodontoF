@@ -38,6 +38,8 @@ package com.pusher.auth{
 			
 			postVars.socket_id = pusher.socketId;
 			postVars.channel_name = channel.name;
+			postVars.cmd = "pusher_auth";
+			postVars.uniqueId = DodontoF_Main.getInstance().getUniqueId();
 			
 			request.method = URLRequestMethod.POST;
 			request.data = postVars;

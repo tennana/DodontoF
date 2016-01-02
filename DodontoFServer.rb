@@ -829,6 +829,9 @@ class DodontoFServer
       ['changeEffectsAll', hasNoReturn], 
       ['removeEffect', hasNoReturn], 
       ['changeImageTags', hasNoReturn], 
+
+      # pusher_auth
+      ['pusher_auth', hasReturn]
     ]
     
     commands.each do |command, commandType|
@@ -6748,6 +6751,13 @@ class DodontoFServer
     end
   end
   
+  def pusher_auth()
+      @isJsonResult = true
+      require 'PusherWarpper'
+      return PusherWarpper.auth({'uniqueId' => getRequestData('uniqueId') , 'channel_name' => getRequestData('channel_name'),'socket_id' => getRequestData('socket_id')})
+  end
+
+
   #override
   def getSaveFileTimeStamp(saveFileName)
     unless( isExist?(saveFileName) ) 
