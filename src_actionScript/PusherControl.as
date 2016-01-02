@@ -157,12 +157,23 @@ package
 		
 		private function typingKeyDownFunc(event:KeyboardEvent):void
 		{
-            if( event.keyCode == Keyboard.ENTER ) {
-                return;
-            } else if ( typingSendTimer != null && typingSendTimer.currentCount < 1) {
-				typingSendTimer.reset();
+			if( event.keyCode == Keyboard.ENTER ) {
 				return;
-			} else if (typingEventSending) {
+			} else if(!(
+				(event.keyCode >= 37 && event.keyCode <= 40) ||
+				(event.keyCode >= 48 && event.keyCode <= 111) ||
+				(event.keyCode == Keyboard.BACKSPACE) ||
+				(event.keyCode == Keyboard.DELETE) ||
+				(event.keyCode == Keyboard.SPACE) ||
+				(event.keyCode == 229)
+			)){
+				return;
+			} else if (typingSendTimer != null && typingSendTimer.currentCount < 1) {
+				typingSendTimer.reset();
+				if(event.keyCode == 229)
+					typingSendTimer.start(); // IMEェ
+				return;
+			} else if (typingEventSending && typingSendTimer != null) {
 				return;
 			}
 			var sendEventData:Object = { "name" : DodontoF_Main.getInstance().getChatWindow().getChatCharacterName(), "uniqueId" : DodontoF_Main.getInstance().getUniqueId() };
