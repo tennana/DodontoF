@@ -20,7 +20,8 @@ package
 		private static const SECURE:Boolean = true;
 
 		private var typingList:Array = [];
-		private var typingTimeoutsec:uint = 60;
+		private var typingTimeoutSec:uint = 6;
+		private var typingTimeoutInErrorSec:uint = 60;
 		private var typingSendTimer:Timer = null;
 		private var typingStateTimer:Timer = null;
 		private var typingListener:Object = new Object();
@@ -38,8 +39,8 @@ package
 			if (jsonData.canUsePusher_ClientEvent) {
 				canUsePusher_ClientEvent = true;
 			}
-			if (jsonData.Pusher_typingTimeoutsec) {
-				typingTimeoutsec = uint(jsonData.Pusher_typingTimeoutsec);
+			if (jsonData.Pusher_typingTimeoutInErrorSec) {
+				typingTimeoutInErrorSec = uint(jsonData.Pusher_typingTimeoutsec);
 			}
 			AUTH_ENDPOINT = Config.getInstance().getDodontoFServerCgiUrl();
 			ORIGIN = Config.getInstance().getUrlString("DodontoF.swf");
@@ -47,7 +48,7 @@ package
 			Pusher.log = Log.logging;
 			Pusher.authorizer = new PostMsgPackAuthorizer(AUTH_ENDPOINT);
 			pusher = new Pusher(APP_KEY, ORIGIN, {"encrypted":true,"secure":true}, false);
-		}	
+		}
 
 		private function channel_member_changed(data:Object):void
 		{
@@ -83,7 +84,7 @@ package
 		}
 
 		private function typingStartEvent(data:Object):void {
-			typingList.push( { "time":uint(new Date().getTime() / 1000 + typingTimeoutsec), "name":data.name , "uniqueId":data.uniqueId} );
+			typingList.push( { "time":uint(new Date().getTime() / 1000 + typingTimeoutInErrorSec), "name":data.name , "uniqueId":data.uniqueId} );
 			updateTypingList();
 		}
 
