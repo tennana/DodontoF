@@ -7,7 +7,7 @@ package
 
 	import com.pusher.Pusher;
 	import com.pusher.PusherConstants;
-	import com.pusher.auth.PostAuthorizer;
+	import com.pusher.auth.PostMsgPackAuthorizer;
 	import com.pusher.channel.Channel;
 
 	public class PusherControl
@@ -45,7 +45,7 @@ package
 			ORIGIN = Config.getInstance().getUrlString("DodontoF.swf");
 			Pusher.enableWebSocketLogging = true;
 			Pusher.log = Log.logging;
-			Pusher.authorizer = new PostAuthorizer(AUTH_ENDPOINT);
+			Pusher.authorizer = new PostMsgPackAuthorizer(AUTH_ENDPOINT);
 			pusher = new Pusher(APP_KEY, ORIGIN, {"encrypted":true,"secure":true}, false);
 		}	
 
