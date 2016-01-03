@@ -2285,11 +2285,12 @@ class DodontoFServer
     }
 
     if($isPusher)
-	result.merge!({'canUsePusher_ClientEvent' => $canUsePusher_ClientEvent,
-	           'Pusher_APP_ID' => $Pusher_APP_ID,
-		   'Pusher_Channel_prefix' => $Pusher_Channel_prefix,
-		   'Pusher_typingTimeoutsec' => $Pusher_typingTimeoutsec,
-                  })
+        result.merge!({
+                'canUsePusher_ClientEvent' => $canUsePusher_ClientEvent,
+                'Pusher_Access_KEY' => $Pusher_Access_KEY,
+                'Pusher_Channel_prefix' => $Pusher_Channel_prefix,
+                'Pusher_typingTimeoutsec' => $Pusher_typingTimeoutsec,
+        })
     end
 
     logging(result, "result")

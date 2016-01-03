@@ -12,7 +12,7 @@ package
 
 	public class PusherControl
 	{	
-		private var APP_KEY:String;
+		private var ACCESS_KEY:String;
 		private var AUTH_ENDPOINT:String;
 		private var ORIGIN:String;
 		private var Pusher_Channel_prefix:String = "";
@@ -32,7 +32,7 @@ package
 
 		public function PusherControl(jsonData:Object):void 
 		{
-			APP_KEY = jsonData.Pusher_APP_ID;
+			ACCESS_KEY = jsonData.Pusher_Access_KEY;
 			if(jsonData.Pusher_Channel_prefix){
 				Pusher_Channel_prefix = jsonData.Pusher_Channel_prefix;
 			}
@@ -47,7 +47,7 @@ package
 			Pusher.enableWebSocketLogging = true;
 			Pusher.log = Log.logging;
 			Pusher.authorizer = new PostMsgPackAuthorizer(AUTH_ENDPOINT);
-			pusher = new Pusher(APP_KEY, ORIGIN, {"encrypted":true,"secure":true}, false);
+			pusher = new Pusher(ACCESS_KEY, ORIGIN, {"encrypted":true,"secure":true}, false);
 		}
 
 		private function channel_member_changed(data:Object):void

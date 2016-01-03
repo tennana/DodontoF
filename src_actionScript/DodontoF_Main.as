@@ -289,15 +289,15 @@ package {
         
         //////////////////////////////////////////
         
-	public function setPusherControl(jsonData:Object):void {
-	    if(this.pusherControl == null){
-		this.pusherControl = new PusherControl(jsonData);
-	    }
-	}
+        public function setPusherControl(jsonData:Object):void {
+            if(this.pusherControl == null){
+                this.pusherControl = new PusherControl(jsonData);
+            }
+        }
 
-	public function getPusherControl():PusherControl {
-	    return this.pusherControl;
-	}
+        public function getPusherControl():PusherControl {
+            return this.pusherControl;
+        }
 
         public function getGuiInputSender():GuiInputSender {
             return guiInputSender;
