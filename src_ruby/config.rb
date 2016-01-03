@@ -273,6 +273,21 @@ $characterInfoToolTipMaxHeight = -1
 #ログアウト時に他に人がいない場合、部屋の削除を質問するかどうかを設定（true:質問する、false:しない)
 $isAskRemoveRoomWhenLogout = true
 
+# Pusher APIを利用するか
+# 今のところRubyスクリプトのインストールが可能で、 gem install pusher を実行しておく必要があります。
+$isPusher = false
+
+# 設定画面でClientEventを有効しているかどうか(現時点では有効の場合のみ動作)
+$canUsePusher_ClientEvent = true
+
+# 設定画面で表示されるAPI_URL
+# 基本的に https://{APP_KEY}:{SECRET_KEY}@api.pusherapp.com/apps/{APP_ID} のはず
+$Pusher_API_URL = ""
+$Pusher_Access_KEY = ""
+
+$Pusher_Channel_prefix = "";
+
+$Pusher_typingTimeoutsec = 60;
 
 # src_bcdice/diceBot/ に置いてあるダイスボットを全て一覧に表示するかどうかの指定。
 # false の場合は下記の $diceBotOrder に記載されていないダイスボットは一覧に表示されません。

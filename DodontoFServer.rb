@@ -829,6 +829,9 @@ class DodontoFServer
       ['changeEffectsAll', hasNoReturn], 
       ['removeEffect', hasNoReturn], 
       ['changeImageTags', hasNoReturn], 
+
+      # pusher_auth
+      ['pusher_auth', hasReturn]
     ]
     
     commands.each do |command, commandType|
@@ -2278,8 +2281,18 @@ class DodontoFServer
       'canUseExternalImageModeOn' => $canUseExternalImageModeOn,
       'characterInfoToolTipMax' => [$characterInfoToolTipMaxWidth, $characterInfoToolTipMaxHeight],
       'isAskRemoveRoomWhenLogout' => $isAskRemoveRoomWhenLogout,
+      'isPusher' => $isPusher,
     }
-    
+
+    if($isPusher)
+        result.merge!({
+                'canUsePusher_ClientEvent' => $canUsePusher_ClientEvent,
+                'Pusher_Access_KEY' => $Pusher_Access_KEY,
+                'Pusher_Channel_prefix' => $Pusher_Channel_prefix,
+                'Pusher_typingTimeoutsec' => $Pusher_typingTimeoutsec,
+        })
+    end
+
     logging(result, "result")
     logging("getLoginInfo end")
     return result
@@ -6747,6 +6760,13 @@ class DodontoFServer
     end
   end
   
+  def pusher_auth()
+      @isJsonResult = true
+      require 'PusherWarpper'
+      return PusherWarpper.auth({'uniqueId' => getRequestData('uniqueId') , 'channel_name' => getRequestData('channel_name'),'socket_id' => getRequestData('socket_id')})
+  end
+
+
   #override
   def getSaveFileTimeStamp(saveFileName)
     unless( isExist?(saveFileName) ) 

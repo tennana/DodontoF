@@ -244,7 +244,7 @@ package {
         private var guiInputSender:GuiInputSender = new GuiInputSender();
         private var map:Map;
         private var roundTimer:RoundTimer = new RoundTimer();
-        
+        private var pusherControl:PusherControl = null;
         
         public function setDodontoF(dodontoF_:DodontoF):void {
             dodontoF = dodontoF_;
@@ -289,6 +289,16 @@ package {
         
         //////////////////////////////////////////
         
+        public function setPusherControl(jsonData:Object):void {
+            if(this.pusherControl == null){
+                this.pusherControl = new PusherControl(jsonData);
+            }
+        }
+
+        public function getPusherControl():PusherControl {
+            return this.pusherControl;
+        }
+
         public function getGuiInputSender():GuiInputSender {
             return guiInputSender;
         }
