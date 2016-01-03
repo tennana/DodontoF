@@ -11,8 +11,8 @@ $LOAD_PATH << File.dirname(__FILE__) # require_relative対策
 
 
 #サーバCGIとクライアントFlashのバージョン一致確認用
-$versionOnly = "Ver.1.47.11"
-$versionDate = "2015/12/17"
+$versionOnly = "Ver.1.47.12"
+$versionDate = "2016/01/03"
 $version = "#{$versionOnly}(#{$versionDate})"
 
 
@@ -2971,6 +2971,12 @@ class DodontoFServer
       return true
     end
     
+    toFileName = File.join(to, File.basename(from))
+    if( File.exist?(toFileName) )
+      loggingForce("toFileName(#{toFileName}) is exist")
+      return true
+    end
+    
     logging("copying...")
     
     result = true
@@ -3957,7 +3963,10 @@ class DodontoFServer
   end
   
   def getRoomLocalSpaceDirNameByRoomNo(roomNo)
-    dir = File.join($imageUploadDir, "room_#{roomNo}")
+    dir = $imageUploadDir
+    unless roomNo.nil?
+      dir = File.join($imageUploadDir, "room_#{roomNo}")
+    end
     return dir
   end
   
@@ -4264,10 +4273,10 @@ class DodontoFServer
     
     params = getParamsFromRequestData()
     tagInfo = params['tagInfo']
-    logging(tagInfo, "uploadImageData tagInfo")
+    logging(tagInfo, "saveSmallImage tagInfo")
     
     tagInfo["smallImage"] = uploadSmallImageFileName
-    logging(tagInfo, "uploadImageData tagInfo smallImage url added")
+    logging(tagInfo, "saveSmallImage tagInfo smallImage url added")
     
     margeTagInfo(tagInfo, uploadImageFileName)
     logging(tagInfo, "saveSmallImage margeTagInfo tagInfo")
@@ -4313,7 +4322,7 @@ class DodontoFServer
         return result
       end
       
-      saveDir = $imageUploadDir
+      saveDir = getUploadImageDataUploadDir(params)
       imageFileNameBase = getNewFileName(imageFileName, "img")
       logging(imageFileNameBase, "imageFileNameBase")
       
@@ -4336,6 +4345,15 @@ class DodontoFServer
     return result
   end
   
+  def getUploadImageDataUploadDir(params)
+    tagInfo = params['tagInfo']
+    tagInfo ||= {}
+    roomNumber = tagInfo["roomNumber"]
+    saveDir = getRoomLocalSpaceDirNameByRoomNo(roomNumber)
+    makeDir(saveDir)
+    
+    return saveDir
+  end
   
   def getImageDataFromParams(params, key)
     value = params[key]
@@ -5241,12 +5259,14 @@ class DodontoFServer
         tmpTags = saveData['imageTags']
         tmpTags ||= {}
         
+=begin
         unless( roomNumber.nil? )
           tmpTags.each do |key, value|
             next if value.nil?
             value.delete("roomNumber")
           end
         end
+=end
         
         imageTags.merge!( tmpTags )
       end
