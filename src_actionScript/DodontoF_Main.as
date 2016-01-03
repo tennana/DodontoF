@@ -109,8 +109,9 @@ package {
             if( info == null ) {
                 info = new Object();
             }
+            Log.logging("info", info);
             
-            initServerViewStateInfo();
+            initServerViewStateInfo(true);
             
             Log.logging("serverViewStateInfo.key", serverViewStateInfo.key);
             Log.logging("info.key", info.key);
@@ -150,6 +151,8 @@ package {
                     serverViewStateInfo = new Object();
                 }
                 
+                Log.logging("serverViewStateInfo", serverViewStateInfo);
+                
                 Config.getInstance().loadViewStateInfo(serverViewStateInfo);
                 Config.getInstance().saveInfo(serverViewStateInfo_saveKey, serverViewStateInfo);
             } catch(e:Error) {
@@ -159,13 +162,14 @@ package {
         
         private var serverViewStateInfo_saveKey:String = "serverViewStateInfo_saveKey";
         
-        private function initServerViewStateInfo():void {
+        private function initServerViewStateInfo(isForceInit:Boolean = false):void {
             Log.logging("initServerViewStateInfo begin");
             
             if( serverViewStateInfo != null ) {
                 Log.logging("serverViewStateInfo is NOT null", serverViewStateInfo);
-                return;
-                
+                if( ! isForceInit ) {
+                    return;
+                }
             }
             
             Log.logging("serverViewStateInfo is null");

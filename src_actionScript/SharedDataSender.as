@@ -917,6 +917,15 @@ package {
                                        viewStates:Object,
                                        playRoomIndex:int,
                                        resultFunction:Function):void {
+            DodontoF_Main.getInstance()
+                .setPlayRoomInfo(playRoomName,
+                                 chatChannelNames,
+                                 canUseExternalImage,
+                                 canVisit,
+                                 backgroundImage,
+                                 gameType,
+                                 viewStates);
+            
             var data:Object = {
                 "playRoomName": playRoomName,
                 "playRoomPassword": playRoomPassword,
