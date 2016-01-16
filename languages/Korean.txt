@@ -701,6 +701,7 @@ saveSaveData = 파일 보존
 saveDataSetting = 서버 데이터 취득중... 잠시 기다려주세요...
 saveDataReady = 세이브(파일 보존)준비완료
 nowSaving = 보존중…
+whenDownloadDoNotBeginWarning = When download dose NOT begin, push cancel button.
 load = 로드
 loadAllSaveData = 모든 데이터를 로드한다（현재의 데이터는 모두 파기됩니다）
 loadAPartOfSaveData = 일부 데이터만을 로드한다

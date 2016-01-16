@@ -798,6 +798,7 @@ package {
             p.saveDataSetting = "サーバデータ取得中...しばらくお待ち下さい...";
             p.saveDataReady = "セーブ(ファイル保存)準備完了";
             p.nowSaving = "保存中…";
+            p.whenDownloadDoNotBeginWarning = "ダウンロードが始まらない場合はキャンセルを押してください";
             
             
             // LoadWindow.mxml
