@@ -699,6 +699,7 @@ saveSaveData = 儲存檔案
 saveDataSetting = 伺服器資料取得中...請稍候...
 saveDataReady = 儲存(檔案儲存)準備完成
 nowSaving = 儲存中…
+whenDownloadDoNotBeginWarning = When download dose NOT begin, push cancel button.
 load = 讀取
 loadAllSaveData = 讀取所有資料（現在的資料將會被全部捨棄）
 loadAPartOfSaveData = 僅讀取一部分資料

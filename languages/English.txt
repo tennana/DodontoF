@@ -703,6 +703,7 @@ saveSaveData = Save the Save File
 saveDataSetting = Server data getting....wait a moment...
 saveDataReady = Ready to Save
 nowSaving = Now Saving....
+whenDownloadDoNotBeginWarning = When download dose NOT begin, push cancel button.
 load = Load
 loadAllSaveData = Load All Save Data(Current All Data Deleted)
 loadAPartOfSaveData = Delete a part of Save Data

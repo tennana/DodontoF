@@ -11,8 +11,8 @@ $LOAD_PATH << File.dirname(__FILE__) # require_relative対策
 
 
 #サーバCGIとクライアントFlashのバージョン一致確認用
-$versionOnly = "Ver.1.47.12"
-$versionDate = "2016/01/03"
+$versionOnly = "Ver.1.47.15"
+$versionDate = "2016/01/14"
 $version = "#{$versionOnly}(#{$versionDate})"
 
 
@@ -1986,7 +1986,8 @@ class DodontoFServer
     
     ignoreLoginUser = true
     password = nil
-    result = removePlayRoomByParams(roomNumbers, ignoreLoginUser, password)
+    isForce = true
+    result = removePlayRoomByParams(roomNumbers, ignoreLoginUser, password, isForce)
     logging(result, "removePlayRoomByParams result")
     
     return result

@@ -701,6 +701,7 @@ saveSaveData = ファイル保存
 saveDataSetting = サーバデータ取得中...しばらくお待ち下さい...
 saveDataReady = セーブ(ファイル保存)準備完了
 nowSaving = 保存中…
+whenDownloadDoNotBeginWarning = ダウンロードが始まらない場合はキャンセルを押してください
 load = ロード
 loadAllSaveData = 全データをロードする（現在のデータは全て破棄されます）
 loadAPartOfSaveData = 一部データのみをロードする
