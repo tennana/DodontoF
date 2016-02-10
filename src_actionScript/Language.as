@@ -593,6 +593,8 @@ package {
             p.mapMarkerWidthSize = "幅:";
             p.mapMarkerColor = "背景色:";
             p.mapMarkerPaint = "塗りつぶす";
+            p.mapMarkerFix = "マーカー固定";
+
             // AddMapMaskWindow.mxml
             p.addMapMask = "マスク作成";
             p.mapMaskName = "名前:";

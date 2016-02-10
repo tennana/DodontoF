@@ -1066,6 +1066,7 @@ package {
             }
             
             var localGameName:String = Utils.getDiceBotLanguageName(gameType);
+            //Log.loggingTest("localGameName", localGameName);
             if( localGameName != null ) {
                 return localGameName;
             }

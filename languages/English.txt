@@ -539,6 +539,7 @@ mapMarkerHeightSize = Height:
 mapMarkerWidthSize = Width:
 mapMarkerColor = BackColor:
 mapMarkerPaint = Painted
+mapMarkerFix = Fixed
 addMapMask = Mask Name
 mapMaskName = Name:
 mapMaskHeight = Height:

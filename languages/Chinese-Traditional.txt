@@ -535,6 +535,7 @@ mapMarkerHeightSize = 高度:
 mapMarkerWidthSize = 寬度:
 mapMarkerColor = 背景顏色:
 mapMarkerPaint = 塗滿
+mapMarkerFix = Fixed
 addMapMask = 製作迷霧
 mapMaskName = 名稱:
 mapMaskHeight = 高度:

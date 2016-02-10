@@ -300,6 +300,10 @@ package {
                 return result;
             }
             
+            result = changeNameMarker(result);
+            name = result.senderName;
+            chatMessage = result.chatMessage;
+            
             Log.logging("findTargetInfo calling...");
             var findResult:Object = findTargetInfo(name, state, chatMessage);
             if(findResult.info == null) {
@@ -307,14 +311,14 @@ package {
                 return result;
             }
             
-            result.chatMessage = findResult.chatMessage;
-            
             var info:Object = copyInfoAjusted( findResult.info );
             
             if( ! effectable ) {
                 Log.logging("StandingGraphics.print End, effectable == false, result", result);
                 return result;
             }
+            
+            result.chatMessage = findResult.chatMessage;
             
             info.source = Config.getInstance().getUrlString(info.source);
             
@@ -335,6 +339,33 @@ package {
             return result;
         }
         
+        //private var nameMarkderReg:RegExp = /(@|＠)([^@＠]+)/g;
+        
+        private function changeNameMarker(result:Object):Object {
+            var names:Array = findAllNames();
+            
+            var nameMarkderReg:RegExp = /(@|＠)([^@＠]+)/g;
+            var match:Object = nameMarkderReg.exec(result.chatMessage);
+            
+            while( match != null ) {
+                var matchFullText:String = match[0];
+                var matchText:String = match[2];
+                for each(var name:String in names) {
+                    if( matchText != name ) {
+                        continue;
+                    }
+                    
+                    result.senderName = name;
+                    result.chatMessage = result.chatMessage.replace(matchFullText, '');
+                    return result;
+                }
+                
+                match = nameMarkderReg.exec(result.chatMessage);
+            }
+            
+            
+            return result;
+        }
         
         
         private function adjustmentPosition(chatWindowX:int, chatWindowY:int, chatWindowWidth:int):void {
