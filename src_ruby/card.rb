@@ -10,6 +10,11 @@ class Card
     cardsListInfos =
       [
        
+       { 'type' => 'amadeus02',
+         'title' => 'アマデウス脅威カード',
+         'fileName' => 'cards/amadeus.txt',
+       },
+       
        { 'type' => 'trump_swf',
          'title' => 'トランプ',
          'fileName' => 'cards/trump_swf.txt',

@@ -537,6 +537,7 @@ mapMarkerHeightSize = 高さ:
 mapMarkerWidthSize = 幅:
 mapMarkerColor = 背景色:
 mapMarkerPaint = 塗りつぶす
+mapMarkerFix = マーカー固定
 addMapMask = マスク作成
 mapMaskName = 名前:
 mapMaskHeight = 高さ:

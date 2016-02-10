@@ -537,6 +537,7 @@ mapMarkerHeightSize = 높이:
 mapMarkerWidthSize = 너비:
 mapMarkerColor = 배경색:
 mapMarkerPaint = 전부 칠한다
+mapMarkerFix = Fixed
 addMapMask = 마스크 작성
 mapMaskName = 이름:
 mapMaskHeight = 높이:
