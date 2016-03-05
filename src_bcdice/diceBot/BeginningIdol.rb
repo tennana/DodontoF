@@ -65,9 +65,9 @@ INFO_MESSAGE_TEXT
   def check_nD6(total_n, dice_n, signOfInequality, diff, dice_cnt, dice_max, n1, n_max)
     return '' unless signOfInequality == ">="
     if(dice_n <= 2)
-      return " ＞ ファンブル(PCは【思い出】1つ獲得)\n" + badStatus
+      return " ＞ ファンブル(変調がランダムに1つ発生し、PCは【思い出】を1つ獲得する)"
     elsif(dice_n >= 12)
-      return " ＞ スペシャル！(PCは【思い出】1つ獲得)"
+      return " ＞ スペシャル！(PCは【思い出】を1つ獲得する)"
     elsif(total_n >= diff)
       return " ＞ 成功"
     else

@@ -1338,11 +1338,15 @@
         }
         
         public function chatMessageTrader_sendMessage_publicChatChannel(chatMessage:String):void {
-            chatMessageTrader_sendMessage(publicChatChannel, chatMessage);
+            var isForcePublic:Boolean = true
+            chatMessageTrader_sendMessage(publicChatChannel, chatMessage, isForcePublic);
         }
         
-        public function chatMessageTrader_sendMessage(channel:int, chatMessage:String):void {
+        public function chatMessageTrader_sendMessage(channel:int, chatMessage:String, isForcePublic:Boolean = false):void {
             var data:ChatSendData = new ChatSendData(channel, chatMessage);
+            if( isForcePublic ) {
+                data.setNoSendto();
+            }
             
             chatMessageTrader.sendMessage(data);
         }

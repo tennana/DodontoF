@@ -1206,9 +1206,9 @@ package {
             sendCommandData(obj);
         }
         
-        public function changeResource(data:Object):void {
+        public function changeResource(data:Object, resultFunction:Function = null):void {
             var obj:Object = getParamObject("changeResource", data);
-            sendCommandData(obj);
+            sendCommandData(obj, resultFunction);
         }
         
         public function changeResourcesAll(data:Object):void {

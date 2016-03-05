@@ -197,6 +197,7 @@ package {
             p.rollCallAndVote = "点呼／投票";
             p.cutInSetting = "カットイン設定";
             p.standingImageConfig = "立ち絵設定";
+            p.sound = "音再生";
             p.soundOn = "音再生あり";
             p.soundOff = "音再生なし";
             p.sendWakeUpSound = "目覚ましアラーム送信";
@@ -378,7 +379,7 @@ package {
             p.voteTotalResult = "投票結果　賛成：{0}、反対：{1}";
             p.checkLoginCount = "このサーバへのログイン回数が{0}回 になりました！\rそろそろ自前サーバの構築はいかがでしょうか！？";
             p.counterRemoconCounterNameWarning = "カウンター値に「{0}」は存在しません";
-            p.replaySetting = "グリッド表示{0}、座標文字{1}、ダイス表示{2}、立ち絵調整{3}";
+            p.replaySetting = "グリッド表示{0}、座標文字{1}、ダイス表示{2}、立ち絵調整{3}、音再生{4}";
             p.deletePlayRoomPasswordMessage = "部屋 [ No.{0} ] を削除します。パスワードを入力してください。";
             p.deleteReplayDataQuestion = "タイトル：{0}\nのリプレイデータを削除します。よろしいですか？";
             p.invalidDiceBotText = "{0}のチャットメッセージに不正なダイスロール結果が検出されました。\n{1}";
@@ -663,6 +664,8 @@ package {
             p.hideDiceSymbol = "ダイスを隠す";
             p.deleteDiceSymbol = "ダイスの削除";
             p.diceSymbolPrivateMode = "非公開：";
+            p.changeDiceSimboleNumber = "「{0}」のダイスシンボルの値が変更されました。";
+            
             // StockDiceSymbolWindow.mxml
             p.createDiceSymbol = "ダイスシンボル生成";
             p.diceSymbomNumber = "ダイス目:";
@@ -979,7 +982,7 @@ package {
             p.buttonName = "ボタン名:";
             p.addHp = "HP増加";
             p.counterRemoconCounterName = "カウンター名\{1\}:";
-            p.counterRemoconCounterNameTips = "イニシアティブは「#INI」で指定できます。";
+            p.counterRemoconCounterNameTips = "イニシアティブは「#INI」で指定できます。\nリソースウィンドの名前を指定することも可能。";
             p.counterRemoconModifyValue = "修正値\{2\}:";
             p.counterRemoconModifyOperatorTips = "現状値に加減算するか、値を差し替えるかを選択できます。";
             p.counterRemoconModifyValueTips = "設定可能な書式\n （空）　：任意の値を後から指定\n 数値　：指定した値\n 「xDy+n」形式：ダイスロール結果（例：２ｄ６＋１、D66、D66s(値入れ替え)）";

@@ -161,7 +161,7 @@ MESSAGETEXT
 
 
     "FL" => {
-      :name => "因縁の喪失表",
+      :name => "因縁表",
       :type => '1D20',
       :table => %w{
 仇敵。奴は敵だ。あなたの敵だ。
