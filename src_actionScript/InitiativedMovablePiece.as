@@ -125,11 +125,35 @@ package {
             return parseInt(counters[key]);
         }
         
-        public function setCounter(key:String, value:int):void {
+        public function isCounterExist(key:String):Boolean {
+            return (counters[key] != null);
+        }
+        
+        public function setCounter(key:String, value:int):int {
+            var initiativeWindow:InitiativeWindow = InitiativeWindow.getInstance();
+            value = initiativeWindow.getCounterValue(this, key, value);
+            
+            var notFountValue:int = -1;
+            
             if( key == null ) {
-                return;
+                return notFountValue;
             }
-            counters[key] = value;
+            
+            var names:Array = initiativeWindow.getCounterNameList();
+            if( names.indexOf(key) != -1 ) {
+                counters[key] = value;
+                return counters[key];
+            }
+            
+            for each(var name:String in names) {
+                var title:Object = InitiativeWindow.getColumnTitle(name);
+                if( key == title ) {
+                    counters[name] = value;
+                    return counters[name];
+                }
+            }
+            
+            return notFountValue;
         }
         
         public function getStatusName(key:String):String {

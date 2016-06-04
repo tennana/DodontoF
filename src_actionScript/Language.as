@@ -1079,7 +1079,7 @@ package {
             p.input = "入力";
             // LoginWindow.mxml
             p.loginUser = "ログインユーザー：";
-            p.versionMismuch = "どどんとふの更新データが正しく読み込めませんでした。\n今開いているページを一度閉じて、再度開き直してください。\n２〜３回繰り返すと読み込みに成功すると思います。\n\n以下、技術的な情報：\nサーババージョン　　　：{0}\nクライアントバージョン：{1}\n";
+            p.versionMismuch = "どどんとふの更新データが正しく読み込めませんでした。\n　１．今開いているページを一度閉じて、再度開き直してください。\n　２．それでもダメな場合、ブラウザのキャッシュをクリアしてみてください。\n　３．それでもダメな場合、サーバーのファイルが正しく転送されているか再度確認してください。\n\n以下、技術的な情報：\nサーババージョン　　：{0}\nクライアントバージョン：{1}\n";
             p.loginRoomStates = "No. {0} ： {1} 人";
             p.nobadyLogined = "誰もログインしていません";
             p.loginStatus = "ログイン状況\n";
@@ -1094,11 +1094,15 @@ package {
             p.setInitiativeInfoWindow = "イニシアティブ表設定";
             p.inputerCounterNames = "カウンターに使用するパラメータ名をスペース区切りで入力してください";
             p.inputerCounterNamesInfo_1 = "先頭に ＊（全角・半角どちらでも可）を付けて記述するとチェック欄になります。";
-            p.inputerCounterNamesInfo_2 = "　　　例）　HP　MP　AC　侵食率　ポシビリティ　*毒　＊転倒";
-            p.inputerCounterNamesInfo_3 = "(注)この設定は同一プレイルームの全員に影響します。";
+            p.inputerCounterNamesInfo_2 = "（最小）＜カウンター名＜（最大）で上下限を指定。「？」を指定すると個別に設定可能。";
+
+            p.inputerCounterNamesInfo_3 = "　　　例）　-15<HP<?　?<MP<99　AC　侵食率　ポシビリティ　*毒　＊転倒";
+            p.inputerCounterNamesInfo_4 = "(注)この設定は同一プレイルームの全員に影響します。";
             p.counterNamelist = "カウンター名一覧:";
             //p.initiativeWindowFontSize = "イニシアティブ表フォントサイズ:";
             //p.initiativeWindowFontSizeTips = "(注)この設定は他のプレイヤーに影響は無く、あなたの画面にだけ反映されます。";
+            p.initiativeColumnMaxFormat = "最大{0}";
+            p.initiativeColumnMinFormat = "最小{0}";
             
             // TagManagerWindow.mxml
             p.tagManagerWindowTitle = "画像タグ名管理";
@@ -1147,7 +1151,6 @@ package {
             japaneseDefault = p;
             languageTable[""] = japaneseDefault;
         }
-        
         
         
         static private var keywordFormat:RegExp = /^###Language:(.+)###$/;
@@ -1205,12 +1208,16 @@ package {
                 languageTable[name] = info;
             }
             
+            // checkJapanese();
             
             return checkLanguageNames();
         }
         
         /*
         static private function checkJapanese():void {
+            
+            if( DodontoF_Main.getInstance().isInvisibleMode() ) { return; }
+            
             var japanese:Object = languageTable[""];
             if( japanese == null ) {
                 Log.logging("japanese is null");

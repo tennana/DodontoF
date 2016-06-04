@@ -112,7 +112,12 @@ package {
             return 0;
         }
         
-        public function setCounter(key:String, value:int):void {
+        public function isCounterExist(key:String):Boolean {
+            return false;
+        }
+        
+        public function setCounter(key:String, value:int):int {
+            return 0;
         }
         
         public function getInitiative():Number {

@@ -14,7 +14,7 @@ package {
             return thisObj;
         }
         
-        private var version:String = "Ver.1.47.24(2016/04/07)";
+        private var version:String = "Ver.1.48.07(2016/05/31)";
         
         public function getVersion():String {
             return version;
@@ -484,6 +484,9 @@ package {
         
         public function isHaveZeroDice(maxNumber:int):Boolean {
             if( maxNumber == 6 ) {
+                return true;
+            }
+            if( maxNumber == 20 ) {
                 return true;
             }
             return false;

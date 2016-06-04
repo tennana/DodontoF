@@ -1,19 +1,17 @@
-#--*-coding:utf-8-*--
+# -*- coding: utf-8 -*-
 
 require 'fileutils'
 
+require 'dodontof/logger'
+
 class SaveDirInfo
-  
   def init(saveDataDirIndexObject, saveDataMaxCount = 0, subDir = '.')
     @saveDataDirIndexObject = saveDataDirIndexObject
     @saveDataDirIndex = nil
     @subDir = subDir
     @saveDataMaxCount = saveDataMaxCount
-    @sampleMode = false
-  end
-  
-  def setSampleMode
-    @sampleMode = true
+
+    @logger = DodontoF::Logger.instance
   end
   
   def getMaxCount
@@ -61,10 +59,10 @@ class SaveDirInfo
   
   
   def getSaveDataLastAccessTimes(fileNames, roomNumberRange)
-    logging(fileNames, "getSaveDataLastAccessTimes fileNames")
+    @logger.debug(fileNames, "getSaveDataLastAccessTimes fileNames")
     
     saveDirs = getSaveDataDirs( roomNumberRange )
-    logging(saveDirs, "getSaveDataLastAccessTimes saveDirs")
+    @logger.debug(saveDirs, "getSaveDataLastAccessTimes saveDirs")
     
     result = {}
     saveDirs.each do |saveDir|
@@ -78,7 +76,7 @@ class SaveDirInfo
       result[dirIndex] = mtimes.max
     end
     
-    logging(result, "getSaveDataLastAccessTimes result")
+    @logger.debug(result, "getSaveDataLastAccessTimes result")
     
     return result;
   end
@@ -92,31 +90,29 @@ class SaveDirInfo
       return @saveDataDirIndex
     end
     
-    logging(@requestData.inspect, "requestData")
+    @logger.debug(@requestData.inspect, "requestData")
     
-    logging(@saveDataDirIndexObject, "saveDataDirIndexObject")
+    @logger.debug(@saveDataDirIndexObject, "saveDataDirIndexObject")
     
     if( @saveDataDirIndexObject.instance_of?( StringIO ) )
-      logging("is StringIO")
+      @logger.debug("is StringIO")
       @saveDataDirIndexObject = @saveDataDirIndexObject.string
     end
     saveDataDirIndex = @saveDataDirIndexObject.to_i
     
-    logging(saveDataDirIndex.inspect, "saveDataDirIndex")
+    @logger.debug(saveDataDirIndex.inspect, "saveDataDirIndex")
     
-    unless( @sampleMode )
-      if( saveDataDirIndex > @saveDataMaxCount )
-        raise "saveDataDirIndex:#{saveDataDirIndex} is over Limit:(#{@saveDataMaxCount}"
-      end
+    if( saveDataDirIndex > @saveDataMaxCount )
+      raise "saveDataDirIndex:#{saveDataDirIndex} is over Limit:(#{@saveDataMaxCount}"
     end
     
-    logging(saveDataDirIndex, "saveDataDirIndex")
+    @logger.debug(saveDataDirIndex, "saveDataDirIndex")
     
     return saveDataDirIndex
   end
   
   def getDirName()
-    logging("getDirName begin..")
+    @logger.debug("getDirName begin..")
     saveDataDirIndex = getSaveDataDirIndex()
     return getDirNameByIndex(saveDataDirIndex)
   end
@@ -128,65 +124,46 @@ class SaveDirInfo
     if( saveDataDirIndex >= 0 )
       dataDirName = "data_" + saveDataDirIndex.to_s
       saveDataDirName = File.join(saveDataBaseDirName, dataDirName)
-      logging(saveDataDirName, "saveDataDirName created")
+      @logger.debug(saveDataDirName, "saveDataDirName created")
     end
     
     return saveDataDirName
   end
   
   def createDir()
-    logging('createDir begin')
+    @logger.debug('createDir begin')
     
     saveDataDirName = getDirName()
-    logging(saveDataDirName, 'createDir saveDataDirName')
+    @logger.debug(saveDataDirName, 'createDir saveDataDirName')
     
     if( FileTest.directory?(saveDataDirName) )
       return
       # raise "このプレイルームはすでに作成済みです。"
     end
     
-    logging("cp_r new save data...")
+    @logger.debug("cp_r new save data...")
     
     Dir::mkdir(saveDataDirName)
     File.chmod(0777, saveDataDirName)
     
-    logging('createDir end')
+    @logger.debug('createDir end')
   end
   
   
   def removeSaveDir(saveDataDirIndex)
     dirName = getDirNameByIndex(saveDataDirIndex)
-    self.class.removeDir(dirName)
-  end
-  
-  def self.removeDir(dirName)
-    return unless( FileTest.directory?(dirName) )
-    
-    # force = true
-    # FileUtils.remove_entry_secure(dirName, force)
-    # 上記のメソッドは一部レンタルサーバ(さくらインターネット等）で禁止されているので、
-    # この下の方法で対応しています。
-
-    files = Dir.glob( File.join(dirName, "*") )
-    
-    logging(files, "removeDir files")
-    files.each do |fileName|
-      File.delete(fileName.untaint)
-    end
-    
-    Dir.delete(dirName)
+    DodontoF::Utils.rmdir(dirName)
   end
   
   def getTrueSaveFileName(saveFileName)
-    logging(saveFileName, "savedirinfo.getTrueSaveFileName saveFileName")
+    @logger.debug(saveFileName, "savedirinfo.getTrueSaveFileName saveFileName")
     begin
       saveDataDirName = getDirName()
-      logging(saveDataDirName, "saveDataDirName")
+      @logger.debug(saveDataDirName, "saveDataDirName")
       
       return File.join(saveDataDirName, saveFileName)
     rescue Exception => e
-      loggingForce($!.inspect )
-      loggingForce(e.inspect )
+      @logger.exceptionConcisely(e)
       raise e
     end
   end
@@ -197,8 +174,7 @@ class SaveDirInfo
       dir = getSaveDataBaseDir()
       return File.join(dir, fileName)
     rescue => e
-      loggingForce($!.inspect )
-      loggingForce(e.inspect )
+      @logger.exceptionConcisely(e)
       raise e
     end
   end
