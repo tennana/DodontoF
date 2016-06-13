@@ -10,14 +10,18 @@ $LOAD_PATH << File.dirname(__FILE__) # require_relative対策
 #DB(MySQL)から各種データを読み出し・書き出しするのが主な作業。
 #変更可能な設定は config.rb にまとめているため、環境設定のためにこのファイルを変更する必要は基本的には無いです。
 
+# どどんとふ名前空間
+module DodontoF
+  # バージョン
+  VERSION = '1.48.08'
+  # リリース日
+  RELEASE_DATE = '2016/06/13'
 
-#サーバCGIとクライアントFlashのバージョン一致確認用
-$versionOnly = "Ver.1.48.07"
-$versionDate = "2016/05/31"
-$version = "#{$versionOnly}(#{$versionDate})"
-
-
-
+  # バージョンとリリース日を含む文字列
+  #
+  # サーバ CGI とクライアント Flash のバージョン一致確認用
+  FULL_VERSION_STRING = "Ver.#{VERSION}(#{RELEASE_DATE})"
+end
 
 if( RUBY_VERSION >= '1.9.0' )
   Encoding.default_external = 'utf-8'
@@ -61,27 +65,7 @@ end
 require "FileLock.rb"
 require "saveDirInfoMysql.rb"
 
-
-$dodontofWarning = nil
-
-if( $isMessagePackInstalled )
-  # gem install msgpack してる場合はこちら。
-  begin
-    require 'rubygems'
-    require 'msgpack'
-  rescue Exception
-    $dodontofWarning = {"key" => "youNeedInstallMsgPack"}
-  end
-else
-  if( RUBY_VERSION >= '1.9.0' )
-    # msgpack のRuby1.9用
-    require 'msgpack/msgpack19'
-  else
-    # MessagePackPure バージョン
-    require 'msgpack/msgpackPure'
-  end
-end
-
+require 'dodontof/msgpack_loader'
 
 
 $saveFileNames = File.join($saveDataTempDir, 'saveFileNames.json');
@@ -1426,7 +1410,7 @@ SQL_TEXT
     jsonData = {
       "loginCount" => getLoginCount(),
       "maxLoginCount" => $aboutMaxLoginCount,
-      "version" => $version,
+      "version" => DodontoF::FULL_VERSION_STRING,
       "result" => 'OK',
     }
     
@@ -2288,7 +2272,7 @@ SQL_TEXT
       "refreshTimeout" => $refreshTimeout,
       "refreshInterval" => getRefreshInterval(),
       "isCommet" => $isCommet,
-      "version" => $version,
+      "version" => DodontoF::FULL_VERSION_STRING,
       "playRoomMaxNumber" => ($saveDataMaxCount - 1),
       "warning" => getLoginWarning(),
       "playRoomGetRangeMax" => $playRoomGetRangeMax,
@@ -5826,10 +5810,12 @@ SQL_TEXT
   
   def getResponse
     response =
-      if $dodontofWarning.nil?
-        analyzeCommand
+      if DodontoF::MsgpackLoader.failed?
+        {
+          'warning' => { 'key' => 'youNeedInstallMsgPack' }
+        }
       else
-        { 'warning' => $dodontofWarning }
+        analyzeCommand
       end
 
     if isJsonResult
