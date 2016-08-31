@@ -185,6 +185,8 @@ package {
             p.mainTabName = "メイン";
             p.smallTalkTabName = "雑談";
             p.visitorTabName = "見学用";
+            p.diceBotHelpWindow = "ダイスボット解説";
+            p.openDiceBotHelpTips = "ダイスボットのヘルプを別ウィンドウで表示します";
             p.botTableTips = "ダイスボット表追加・変更・削除";
             p.novelticModeTips = "シフトキー・Ctrlキーを押しながらのマウス操作でもログは隠れなくなります。";
             p.easyFileUploader = "簡易ファイルアップローダー";
@@ -556,6 +558,7 @@ package {
             p.changeSharedMemo = "共有メモの変更";
             p.deleteSharedMemo = "共有メモの削除";
             // AddMemoWindow.mxml
+            p.addMemoTab = "タブ追加";
             p.memo = "メモ:";
             
             
@@ -836,7 +839,7 @@ package {
             p.chatPalletSave = "セーブ";
             p.chatPalletLoad = "ロード";
             p.chatPalletAddTab = "タブ追加";
-            p.chatPalletDeleteTab = "タブ削除";
+            p.chatPalletUndo = "削除戻し";
             p.chatPalletInputSample1 = "チャットパレット入力例：";
             p.chatPalletInputSample2 = "2d6+1 ダイスロール";
             p.chatPalletInputSample3 = "１ｄ２０＋{敏捷}＋｛格闘＠2｝　格闘！";
@@ -848,6 +851,7 @@ package {
             p.chatPalletTabName = "タブ名：";
             p.chatPalletSendButton = "送信";
             p.chatPalletSaveData = "チャットパレットセーブデータ";
+            
             // ChatWindow.mxml
             p.channerCoundIsEmptyErrorMessage = "チャンネル数が0で設定されています。正しいチャンネル設定を行ってください";
             p.sendChatErrorMessage = "チャット送信エラー";
@@ -896,7 +900,7 @@ package {
             p.deleting = "削除中・・・";
             p.deleteResultLoading = "結果受信中・・・";
             // ImageUploadSetInfo.mxml
-            p.uploadImageFormat = "対応画像:JPEG/GIF/PNG/SWF（アニメGIFは1コマ目のみを表示）";
+            p.uploadImageFormat = "対応画像:JPEG/GIF/PNG/SWF";
             p.secretImagePassword = "隠し画像パスワード設定";
             p.addedTags = "付与するタグ（半角・全角スペースで区切り）：";
             p.addedTagsTips = "タグ名に 縦nn横mm を記述することでマップ変更時に自動的にそのサイズが指定されます。";

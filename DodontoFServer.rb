@@ -12,9 +12,9 @@ $LOAD_PATH << File.dirname(__FILE__) # require_relative対策
 # どどんとふ名前空間
 module DodontoF
   # バージョン
-  VERSION = '1.48.08'
+  VERSION = '1.48.16'
   # リリース日
-  RELEASE_DATE = '2016/06/13'
+  RELEASE_DATE = '2016/09/01'
 
   # バージョンとリリース日を含む文字列
   #
@@ -44,15 +44,27 @@ if( $isFirstCgi )
   require 'cgiPatch_forFirstCgi'
 end
 
-require "config.rb"
+require "config"
+
+$globalErrorMessage = nil
 
 begin
-  require "config_local.rb"
-rescue Exception
+  require "config_local"
+rescue LoadError
+  # NO config_local.rb is NOT error.
+rescue Exception => e
+  $globalErrorMessage ||= ''
+  $globalErrorMessage << "config_local.rb has Error !\n\n"
+  $globalErrorMessage << e.to_s
+  
+  unless $!.nil?
+    $globalErrorMessage << 'exception from : ' << $!.backtrace.join("\n")
+    $globalErrorMessage << '$!.inspect : ' << $!.inspect
+  end
 end
 
 if $isTestMode
-  require "config_test.rb"
+  require "config_test"
 end
 
 
@@ -60,8 +72,8 @@ if( $loginCountFileFullPath.nil? )
   $loginCountFileFullPath = File.join($SAVE_DATA_DIR, 'saveData', $loginCountFile)
 end
 
-require "FileLock.rb"
-require "saveDirInfo.rb"
+require "FileLock"
+require "saveDirInfo"
 
 require 'dodontof/msgpack_loader'
 
@@ -149,6 +161,10 @@ class DodontoFServer
     return messagePack
   end
 
+  # セーブデータディレクトリの情報
+  # @return [SaveDirInfo]
+  attr_reader :saveDirInfo
+
   def initialize(saveDirInfo, cgiParams)
     @cgiParams = cgiParams
     @saveDirInfo = saveDirInfo
@@ -158,10 +174,8 @@ class DodontoFServer
     roomIndexKey = "room"
     initSaveFiles( getRequestData(roomIndexKey) )
 
-    @isAddMarker = false
     @jsonpCallBack = nil
     @isWebIf = false
-    @isJsonResult = true
     @isRecordEmpty = false
 
     @diceBotTablePrefix = 'diceBotTable_'
@@ -231,12 +245,10 @@ class DodontoFServer
     return valueWebIf
   end
 
-  attr :isAddMarker
   attr :jsonpCallBack
-  attr :isJsonResult
   
   def getCardsInfo
-    require "card.rb"
+    require "card"
     
     return @card unless( @card.nil? )
     
@@ -858,18 +870,12 @@ class DodontoFServer
     @logger.debug("analyzeWebInterfaceCatched begin")
     
     @isWebIf = true
-    @isJsonResult = true
     
     commandName = getRequestData('webif')
     @logger.debug(commandName, 'commandName')
     
     if( isInvalidRequestParam(commandName) )
       return nil
-    end
-    
-    marker = getRequestData('marker')
-    if( isInvalidRequestParam(marker) )
-      @isAddMarker = false
     end
     
     @logger.debug(commandName, "commandName")
@@ -1212,7 +1218,7 @@ class DodontoFServer
     minRoom = getWebIfRequestInt('minRoom', 0)
     maxRoom = getWebIfRequestInt('maxRoom', ($saveDataMaxCount - 1))
 
-    room = DodontoF::PlayRoom.new(self, @saveDirInfo)
+    room = DodontoF::PlayRoom.new(self)
     playRoomStates = room.getStates(minRoom, maxRoom)
 
     jsonData = {
@@ -1928,18 +1934,18 @@ class DodontoFServer
   end
   
   def removeOldPlayRoom()
-    DodontoF::PlayRoom.new(self, @saveDirInfo).removeOlds
+    DodontoF::PlayRoom.new(self).removeOlds
   end
   
   def getPlayRoomStates()
     params = getParamsFromRequestData()
     @logger.debug(params, "params")
 
-    DodontoF::PlayRoom.new(self, @saveDirInfo).getStatesByParams(params)
+    DodontoF::PlayRoom.new(self).getStatesByParams(params)
   end
   
   def getPlayRoomState(roomNo)
-    DodontoF::PlayRoom.new(self, @saveDirInfo).getState(roomNo)
+    DodontoF::PlayRoom.new(self).getState(roomNo)
   end
   
   def getGameName(gameType)
@@ -2056,6 +2062,10 @@ class DodontoFServer
       'canUseExternalImageModeOn' => $canUseExternalImageModeOn,
       'characterInfoToolTipMax' => [$characterInfoToolTipMaxWidth, $characterInfoToolTipMaxHeight],
       'isAskRemoveRoomWhenLogout' => $isAskRemoveRoomWhenLogout,
+      'canUploadImageOnPublic' => $canUploadImageOnPublic,
+      'wordChecker' => $wordChecker,
+      'errorMessage' => $globalErrorMessage,
+
       'isPusher' => $isPusher,
     }
     if($isPusher)
@@ -2143,7 +2153,7 @@ class DodontoFServer
   
   
   def getLoginWarning
-    image = DodontoF::Image.new(self, @saveDirInfo)
+    image = DodontoF::Image.new(self)
     smallImageDir = image.getSmallImageDir
     unless( isExistDir?(smallImageDir) )
       return {
@@ -2260,17 +2270,17 @@ class DodontoFServer
   
   def createPlayRoom()
     params = getParamsFromRequestData()
-    DodontoF::PlayRoom.new(self, @saveDirInfo).create(params)
+    DodontoF::PlayRoom.new(self).create(params)
   end
   
   def changePlayRoom()
     params = getParamsFromRequestData()
-    DodontoF::PlayRoom.new(self, @saveDirInfo).change(params)
+    DodontoF::PlayRoom.new(self).change(params)
   end
 
   def removePlayRoom()
     params = getParamsFromRequestData()
-    DodontoF::PlayRoom.new(self, @saveDirInfo).remove(params)
+    DodontoF::PlayRoom.new(self).remove(params)
   end
   
   def getTrueSaveFileName(fileName)
@@ -2673,7 +2683,7 @@ class DodontoFServer
     params = getParamsFromRequestData()
     @logger.debug(params, 'params')
 
-    DodontoF::PlayRoom.new(self, @saveDirInfo).check(params)
+    DodontoF::PlayRoom.new(self).check(params)
   end
   
   def loginPassword()
@@ -3503,7 +3513,7 @@ class DodontoFServer
 
   def uploadImageData()
     params = getParamsFromRequestData()
-    image = DodontoF::Image.new(self, @saveDirInfo)
+    image = DodontoF::Image.new(self)
     image.uploadImageData(params)
   end
   
@@ -3547,7 +3557,7 @@ class DodontoFServer
   
   def deleteImage()
     params = getParamsFromRequestData()
-    image = DodontoF::Image.new(self, @saveDirInfo)
+    image = DodontoF::Image.new(self)
     image.deleteImage(params)
   end
   
@@ -3560,7 +3570,7 @@ class DodontoFServer
   
   def uploadImageUrl()
     imageData = getParamsFromRequestData()
-    image = DodontoF::Image.new(self, @saveDirInfo)
+    image = DodontoF::Image.new(self)
     image.uploadImageUrl(imageData)
   end
   
@@ -4107,7 +4117,7 @@ class DodontoFServer
   
   def changeImageTags()
     effectData = getParamsFromRequestData()
-    image = DodontoF::Image.new(self, @saveDirInfo)
+    image = DodontoF::Image.new(self)
     image.changeImageTags(effectData)
   end
   
@@ -4117,7 +4127,7 @@ class DodontoFServer
   end
   
   def getImageTagsAndImageList
-    image = DodontoF::Image.new(self, @saveDirInfo)
+    image = DodontoF::Image.new(self)
     image.getImageTagsAndImageList()
   end
   
@@ -5670,13 +5680,8 @@ class DodontoFServer
         analyzeCommand
       end
 
-    if isJsonResult
       return getJsonString(response)
-    else
-      return MessagePack.pack(response)
-    end
   end
-  
 end
 
 
@@ -5728,23 +5733,6 @@ def main(cgiParams)
   logger.debug("printResult called")
 end
 
-def getInitializedHeaderText(server)
-  header = ""
-  
-  if( $isModRuby )
-    #Apache::request.content_type = "text/plain; charset=utf-8"
-    #Apache::request.send_header
-  else
-    if( server.isJsonResult )
-      header = "Content-Type: text/plain; charset=utf-8\n"
-    else
-      header = "Content-Type: application/x-msgpack; charset=x-user-defined\n"
-    end
-  end
-  
-  return header
-end
-
 def printResult(server)
   logger = DodontoF::Logger.instance
 
@@ -5752,14 +5740,10 @@ def printResult(server)
 
   text = "empty"
 
-  header = getInitializedHeaderText(server)
+  header = $isModRuby ? '' : "Content-Type: application/json\n"
 
   begin
     result = server.getResponse
-
-    if( server.isAddMarker )
-      result = "#D@EM>#" + result + "#<D@EM#";
-    end
 
     if( server.jsonpCallBack )
       result = "#{server.jsonpCallBack}(" + result + ");";
@@ -5834,7 +5818,7 @@ def executeDodontoServerCgi()
   case $dbType
   when "mysql"
     #mod_ruby でも再読み込みするようにloadに
-    require 'DodontoFServerMySql.rb'
+    require 'DodontoFServerMySql'
     mainMySql(cgiParams)
   else
     #通常のテキストファイル形式

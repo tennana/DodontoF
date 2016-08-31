@@ -14,7 +14,7 @@ package {
             return thisObj;
         }
         
-        private var version:String = "Ver.1.48.08(2016/06/13)";
+        private var version:String = "Ver.1.48.16(2016/09/01)";
         
         public function getVersion():String {
             return version;
@@ -572,14 +572,46 @@ package {
         }
         
         
-        private var isAskRemoveRoomWhenLogoutMode:Boolean = true;
+        private var configParams:Object = {
+            isAskRemoveRoomWhenLogout: true,
+            canUploadImageOnPublic: true,
+            wordChecker: {},
+            dummy:false
+        };
         
         public function set isAskRemoveRoomWhenLogout(b:Boolean):void {
-            isAskRemoveRoomWhenLogoutMode = b;
+            configParams.isAskRemoveRoomWhenLogout = b;
         }
         
         public function get isAskRemoveRoomWhenLogout():Boolean {
-            return isAskRemoveRoomWhenLogoutMode;
+            return configParams.isAskRemoveRoomWhenLogout;
+        }
+        
+        
+        public function set canUploadImageOnPublic(b:Boolean):void {
+            configParams.canUploadImageOnPublic = b;
+        }
+        
+        public function get canUploadImageOnPublic():Boolean {
+            return configParams.canUploadImageOnPublic;
+        }
+        
+        
+        public function setWordChecker(obj:Object):void {
+            configParams.wordChecker = obj;
+        }
+        
+        public function getWordChecker(key:String):Object {
+            if( configParams.wordChecker == null ) {
+                return new Object();
+            }
+            
+            var info:Object = configParams.wordChecker[key];
+            if( info == null ) {
+                return new Object();
+            }
+            
+            return info;
         }
         
     }
