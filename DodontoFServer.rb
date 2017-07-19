@@ -12,9 +12,9 @@ $LOAD_PATH << File.dirname(__FILE__) # require_relative対策
 # どどんとふ名前空間
 module DodontoF
   # バージョン
-  VERSION = '1.48.16'
+  VERSION = '1.48.28'
   # リリース日
-  RELEASE_DATE = '2016/09/01'
+  RELEASE_DATE = '2017/07/17'
 
   # バージョンとリリース日を含む文字列
   #
@@ -39,10 +39,6 @@ require 'dodontof/utils'
 require 'dodontof/dice_adapter'
 require 'dodontof/play_room'
 require 'dodontof/image'
-
-if( $isFirstCgi )
-  require 'cgiPatch_forFirstCgi'
-end
 
 require "config"
 
@@ -170,16 +166,14 @@ class DodontoFServer
     @saveDirInfo = saveDirInfo
 
     @logger = DodontoF::Logger.instance
-
-    roomIndexKey = "room"
-    initSaveFiles( getRequestData(roomIndexKey) )
+    @cgi = nil
 
     @jsonpCallBack = nil
     @isWebIf = false
     @isRecordEmpty = false
 
-    @diceBotTablePrefix = 'diceBotTable_'
-    @dice_adapter = DodontoF::DiceAdapter.new(getDiceBotExtraTableDirName, @diceBotTablePrefix)
+    initSaveFiles(getRequestData('room'))
+    @dice_adapter = DodontoF::DiceAdapter.new(getDiceBotExtraTableDirName, 'diceBotTable_')
 
     @fullBackupFileBaseName = "DodontoFFullBackup"
 
@@ -207,7 +201,7 @@ class DodontoFServer
   # @return [String] キーが存在する場合
   # @return [nil] キーが存在しない場合
   def getRawCGIValue(key)
-    @cgi ||= CGI.new
+    @cgi = CGI.new if @cgi.nil?
 
     # CGI#params[] では配列または nil が返るため、キーが含まれているか
     # どうかのチェックが必要
@@ -944,6 +938,8 @@ class DodontoFServer
     case command
     when 'addCharacter'
       sendWebIfAddCharacter
+    when 'addMessageCard'
+      sendWebIfAddMessageCard
     when 'changeCharacter'
       sendWebIfChangeCharacter
     when 'addMemo'
@@ -952,6 +948,8 @@ class DodontoFServer
       sendWebIfChangeMemo
     when 'setRoomInfo'
       setWebIfRoomInfo
+    when 'uploadImageData'
+      uploadImageDataWebIf
     else
       nil
     end
@@ -1470,6 +1468,43 @@ class DodontoFServer
     return result
   end
   
+  
+  def sendWebIfAddMessageCard
+    @logger.debug("sendWebIfAddMessageCard Begin")
+    
+    result = {}
+    result['result'] = 'OK'
+    
+    fontSize = getWebIfRequestInt('fontSize', 20)
+    text = getWebIfRequestText('text')
+    html = "<font size='#{fontSize * 4}'>#{text}</font>"
+    
+    text = getWebIfRequestText('back')
+    htmlBack = "<font size='#{fontSize * 4}'>#{text}</font>"
+    
+    params = {
+      'imageName' => html,
+      'imageNameBack' => htmlBack,
+      
+      "isOpen" => false,
+      "isBack" => false,
+      "isText" => true,
+      'mountName' => "messageCard",
+      "isUpDown" => false,
+      "canDelete" => true,
+      "canRewrite" => true,
+      "x" => 0,
+      "y" => 0,
+    }
+    
+    @logger.debug(params, 'sendWebIfAddMessageCard jsonData')
+    
+    addCardData( params )
+    
+    return result
+  end
+  
+  
   def getWebIfImageName(key, default)
     @logger.debug("getWebIfImageName begin")
     @logger.debug(key, "key")
@@ -1646,6 +1681,44 @@ class DodontoFServer
       roundTimeData['counterNames'] = counterNames
     end
   end
+  
+  
+  def uploadImageDataWebIf()
+    @logger.debug("uploadImageDataWebIf begin")
+    
+    require 'base64'
+    
+    fileData = getRequestData('fileData')
+    raise "no fileData param" if fileData.nil?
+    imageFileName = fileData.original_filename
+    imageData = fileData.read
+    
+    smallImageData = getRequestData('smallImageData')
+    smallImageData = Base64.decode64( smallImageData )  unless smallImageData.nil?
+    
+    imagePassword = getWebIfRequestText('imagePassword', "")
+    tags = getWebIfRequestText('tags', "").split(/[\s　]/)
+    roomNumber = getRequestData('room')
+    
+    params = {
+      "tagInfo" => {
+        "tags" => tags,
+        "roomNumber" => roomNumber,
+        "password" => imagePassword },
+      "imageFileName" => imageFileName,
+      "imageData"=> imageData,
+      "smallImageData"=> smallImageData,
+    }
+    
+    image = DodontoF::Image.new(self)
+    isSetFileName = true
+    result = image.uploadImageData(params, isSetFileName)
+    result['result'] = result.delete('resultText')
+    
+    @logger.debug(result, "uploadImageDataWebIf result")
+    return result
+  end
+  
   
   def getWebIfRequestAny(functionName, key, defaultInfos, key2 = nil)
     key2 ||= key
@@ -1948,18 +2021,6 @@ class DodontoFServer
     DodontoF::PlayRoom.new(self).getState(roomNo)
   end
   
-  def getGameName(gameType)
-    require 'diceBotInfos'
-    diceBotInfos = DiceBotInfos.new.getInfos
-    gameInfo = diceBotInfos.find{|i| i["gameType"] == gameType}
-    
-    return '--' if( gameInfo.nil? )
-    
-    return gameInfo["name"]
-  end
-  
-  
-  
   def getAllLoginCount()
     roomNumberRange = (0 .. $saveDataMaxCount)
     loginUserCountList = getLoginUserCountList( roomNumberRange )
@@ -2097,6 +2158,7 @@ class DodontoFServer
     fileNames.each do |fileName|
       next unless(/#{dir}\/(.+)\.txt$/ === fileName)
       name = $1
+      name.gsub!(/-/, '')
       
       # "_README.txt" のように _ で始まるファイルは対象外とします
       next if(/^_/ === name)
@@ -2206,63 +2268,26 @@ class DodontoFServer
     return loginMessage
   end
   
-  def getDiceBotInfos()
+  # ダイスボットの情報を返す
+  # @return [Array<Hash>]
+  #
+  # 部屋番号が指定されていた場合、テーブルのコマンドも含める。
+  def getDiceBotInfos
     @logger.debug("getDiceBotInfos() Begin")
     
     require 'diceBotInfos'
-    diceBotInfos = DiceBotInfos.new.getInfos
     
-    commandInfos = getGameCommandInfos
+    orderedGameNames = $diceBotOrder.split("\n")
     
-    commandInfos.each do |commandInfo|
-      @logger.debug(commandInfo, "commandInfos.each commandInfos")
-      setDiceBotPrefix(diceBotInfos, commandInfo)
-    end
-    
-    # @logger.debug(diceBotInfos, "getDiceBotInfos diceBotInfos")
-    
-    return diceBotInfos
-  end
-  
-  def setDiceBotPrefix(diceBotInfos, commandInfo)
-    gameType = commandInfo["gameType"]
-    
-    if( gameType.empty? )
-      setDiceBotPrefixToAll(diceBotInfos, commandInfo)
-      return
-    end
-    
-    botInfo = diceBotInfos.find{|i| i["gameType"] == gameType}
-    setDiceBotPrefixToOne(botInfo, commandInfo)
-  end
-  
-  def setDiceBotPrefixToAll(diceBotInfos, commandInfo)
-    diceBotInfos.each do |botInfo|
-      setDiceBotPrefixToOne(botInfo, commandInfo)
+    if @saveDirInfo.getSaveDataDirIndex != -1
+      DiceBotInfos.withTableCommands(orderedGameNames,
+                                     $isDisplayAllDice,
+                                     @dice_adapter.getGameCommandInfos)
+    else
+      DiceBotInfos.get(orderedGameNames, $isDisplayAllDice)
     end
   end
   
-  def setDiceBotPrefixToOne(botInfo, commandInfo)
-    @logger.debug(botInfo, "botInfo")
-    return if(botInfo.nil?)
-    
-    prefixs = botInfo["prefixs"]
-    return if( prefixs.nil? )
-    
-    prefixs << commandInfo["command"]
-  end
-  
-  def getGameCommandInfos
-    @logger.debug('getGameCommandInfos Begin')
-
-    if( @saveDirInfo.getSaveDataDirIndex == -1 )
-      @logger.debug('getGameCommandInfos room is -1, so END')
-      return []
-    end
-
-    @dice_adapter.getGameCommandInfos
-  end
-
   def createDir(playRoomIndex)
     @saveDirInfo.setSaveDataDirIndex(playRoomIndex)
     @saveDirInfo.createDir()
@@ -3543,6 +3568,7 @@ class DodontoFServer
     roomNumber  = getRequestData('roomNumber')
     if( roomNumber.nil? )
       roomNumber  = getRequestData('room')
+      roomNumber = roomNumber.to_i unless roomNumber.nil?
     end
     
     result = nil
@@ -3688,6 +3714,7 @@ class DodontoFServer
   end
   
   def getRollDiceResult( params )
+    params['originalMessage'] = params['message']
     rollResult, isSecret, randResults = @dice_adapter.rollDice(params)
 
     secretMessage = ""
@@ -3740,10 +3767,10 @@ class DodontoFServer
   end
   
   def getDiceBotPower(params)
-    message = params['message']
+    message = params['originalMessage']
     
     power = 0
-    if /((!|！)+)$/ === message
+    if /((!|！)+)(\r|$)/ === message
       power = $1.length
     end
     
@@ -4436,24 +4463,28 @@ class DodontoFServer
   def addCard()
     @logger.debug("addCard begin");
     
-    addCardData = getParamsFromRequestData()
-    
-    isText = addCardData['isText']
-    imageName = addCardData['imageName']
-    imageNameBack = addCardData['imageNameBack']
-    mountName = addCardData['mountName']
-    isUpDown = addCardData['isUpDown']
-    canDelete = addCardData['canDelete']
-    canRewrite = addCardData['canRewrite']
-    isOpen = addCardData['isOpen']
-    isBack = addCardData['isBack']
+    params = getParamsFromRequestData()
+    addCardData(params)
+  end
+  
+  
+  def addCardData(params)
+    isText = params['isText']
+    imageName = params['imageName']
+    imageNameBack = params['imageNameBack']
+    mountName = params['mountName']
+    isUpDown = params['isUpDown']
+    canDelete = params['canDelete']
+    canRewrite = params['canRewrite']
+    isOpen = params['isOpen']
+    isBack = params['isBack']
     
     changeSaveData(@saveFiles['characters']) do |saveData|
       cardData = getCardData(isText, imageName, imageNameBack, mountName, isUpDown, canDelete, canRewrite)
-      cardData["x"] = addCardData['x']
-      cardData["y"] = addCardData['y']
-      cardData["owner"] = addCardData['owner']
-      cardData["ownerName"] = addCardData['ownerName']
+      cardData["x"] = params['x']
+      cardData["y"] = params['y']
+      cardData["owner"] = params['owner']
+      cardData["ownerName"] = params['ownerName']
       cardData["isOpen"] = isOpen unless( isOpen.nil? )
       cardData["isBack"] = isBack unless( isBack.nil? )
       
@@ -5796,7 +5827,8 @@ def getCgiParams()
   logger.debug(ENV['REQUEST_METHOD'], "ENV[REQUEST_METHOD]")
   input = nil
   messagePackedData = {}
-  if( ENV['REQUEST_METHOD'] == "POST" )
+  if( ENV['REQUEST_METHOD'].to_s == "POST" and
+      ENV['CONTENT_TYPE'].to_s == "application/x-msgpack" )
     length = ENV['CONTENT_LENGTH'].to_i
     logger.debug(length, "getCgiParams length")
 

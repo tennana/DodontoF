@@ -14,10 +14,7 @@ class DiceBotTest
 
     @dataDir = "#{testBaseDir}/data"
     @tableDir = "#{testBaseDir}/../../extratables"
-    src_bcdice = "#{testBaseDir}/../../src_bcdice"
-    DiceBotLoader.setBcDicePath(
-      File.directory?(src_bcdice) ? src_bcdice : "#{testBaseDir}/../../src"
-    )
+
     @bot = CgiDiceBot.new
 
     @testDataSet = []
@@ -67,6 +64,7 @@ class DiceBotTest
     end
 
     targetFiles.each do |filename|
+      next if /^_/ === File.basename(filename)
       
       source =
         if RUBY_VERSION < '1.9'

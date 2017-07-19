@@ -50,7 +50,6 @@
         <a href='#cgiServerSetting'>CGIサーバの用意</a>
         <ul>
           <li><a href='#cgiServerSettingOnCommonRentalServer'>レンタルサーバを用意する場合の注意事項</a></li>
-          <li><a href='#cgiServerSettingOnSakuraVPS'>さくらVPSを使用する場合</a></li>
         </ul>
       </li>
       <li><a href='#forOwnServerAdmin'>自前サーバ運営者へのアドバイス</a></li>
@@ -94,7 +93,9 @@
       <li><a href='#webIf_setRoomInfo'>setRoomInfo：プレイルームの情報設定</a></li>
       <li><a href='#webIf_addMemo'>addMemo：共有メモ追加</a></li>
       <li><a href='#webIf_changeMemo'>changeMemo：共有メモ追加</a></li>
+      <li><a href='#webIf_addMessageCard'>addMessageCard：メッセージカード追加</a></li>
       <li><a href='#webIf_refresh'>refresh：各種情報取得</a></li>
+      <li><a href='#webIf_uploadImageData'>uploadImageData：画像ファイルアップロード</a></li>
     </ul>
   </li>
   <li>
@@ -176,13 +177,13 @@ Flashって何？という方はすでに入っている可能性もあります
 上記の手順が一番分かりやすいですが、それ以外の場所や方法でサーバを設置したい方や詳細な手順については以下を参照ください。<br>
 <br>
 <h3 id="cgiServerSetting">CGIサーバの用意</h3>
-まず、Rubyの動くCGIサーバが必要です。<br>
-サポートバージョンは以下の通り。<br>
-<br>
-「どどんとふ」を動かすために必要なRubyのバージョン：1.8.6 以上
-<br>
-この条件を満たさないと正常に動作させることはできません。<br>
-<br>
+<p>まず、Rubyの動くCGIサーバが必要です。<br>
+サポートバージョンは以下の通り。</p>
+<p>「どどんとふ」を動かすために必要なRubyのバージョン：1.8.7 以上</p>
+<ul>
+  <li>Ruby 1.9を使用する場合は、CGIライブラリのバグが修正された1.9.3</li>
+</ul>
+<p>この条件を満たさないと正常に動作させることはできません。</p>
 <h4 id="cgiServerSettingOnCommonRentalServer">レンタルサーバを用意する場合の注意事項</h4>
 レンタルサーバーを使用する場合、そのレンタルサーバがCGIチャットの設置を許容しているかの確認が必要です。<br>
 以下、どどんとふに利用可能なレンタルサーバ、利用不可なレンタルサーバについて。<br>
@@ -206,12 +207,6 @@ Flashって何？という方はすでに入っている可能性もあります
 </ul>
 <br>
 利用不可なサーバに現状で設置されている方は移設をお願いいたします。<br>
-<br>
-<br>
-<h4 id="cgiServerSettingOnSakuraVPS">さくらVPSを使用する場合</h4>
-さくらVPSを使用する場合は
-<a href="./howToSetupOnSakuraVPS.html">どどんとふ設置メモ (さくらVPS Ubuntu10.04)</a><br>
-を参照ください。
 <br>
 <br>
 どどんとふではこれらのレンタルサーバを借りてのCGI設置を大前提としています。<br>
@@ -982,6 +977,25 @@ DodontoFServer.rb?webif=setRoomInfo&room=1&password=himitsu&counter=HP,MP,PPP&ch
 応答データ例）<br>
 　responseFunction({"result":"OK"});<br>
 <br>
+<h3 id="webIf_addMessageCard">addMessageCard：メッセージカード追加</h3>
+メッセージカードを追加することが出来ます。<br>
+<br>
+指定可能パラメータ：<br>
+　webif：コマンド名。この場合は addMessageCard を指定<br>
+　room：対象プレイルーム番号<br>
+　password：対象プレイルームのパスワード（パスワードが無い、あるいは見学可の場合は省略可能）<br>
+　callback: JSONP取得用の関数名設定用。省略可<br>
+　<br>
+　text：メッセージカードに表示する文字列<br>
+　back：メッセージカードの裏面に表示する文字列<br>
+　fontSize：メッセージカードのフォントサイズ。デフォルト20。省略可<br>
+<br>
+コマンド例）<br>
+　DodontoFServer.rb?webif=addMessageCard&room=1&password=himitsu&callback=responseFunction&message=qwerty&text=cardText&back=backText&fontSize=40<br>
+<br>
+応答データ例）<br>
+　responseFunction({"result":"OK"});<br>
+<br>
 <h3 id="webIf_refresh">refresh：各種情報取得</h3>
 部屋の各種情報を一括して取得できます。<br>
 <br>
@@ -1026,6 +1040,87 @@ chatLastTime、チャットの更新時刻の2種類目、は chatMessageDataLog
 　DodontoFServer.rb?webif=refresh&room=0&chat=1353655077000&map=1330171325000&characters=1330171325000&time=1344179443000&effects=1344179573000&roomInfo=1344134257000&chatLastTime=1262834781.571&callback=responseFunction<br>
 <br>
 となります。<br>
+<br>
+<h3 id="webIf_uploadImageData">uploadImageData：画像ファイルアップロード</h3>
+画像ファイルをアップロードすることが出来ます。<br>
+★このコマンドのみPOST指定で投げる必要があるため、他のコマンドのようにURLでコマンド指定はできません。<br>
+<br>
+指定可能パラメータ：<br>
+　webif：コマンド名。この場合は uploadImageData を指定<br>
+　room：対象プレイルーム番号<br>
+　password：対象プレイルームのパスワード（パスワードが無い、あるいは見学可の場合は省略可能）<br>
+　callback: JSONP取得用の関数名設定用。省略可<br>
+　<br>
+　fileData：アップロード対象の画像データ。<br>
+　tags：画像タグ。空白で区切ることで複数指定が可能です。<br>
+　smallImageData：縮小画像のBase64エンコードデータ。（省略可）<br>
+　<br>
+詳細な実例は同梱の chat.html の uploadImageData() を参照願います。<br>
+動作検証時には chat.html から部屋にログインして「画像」と書かれたリンクを押してください。<br>
+以下、該当箇所を抜粋。<br>
+<pre><code>
+例）
+HTML側：form部分から必須箇所のみ抜粋
+
+        &lt;form id=&quot;fileUpload&quot;&gt;
+          &lt;canvas id=&quot;smallImageCanvas&quot; &gt;&lt;/canvas&gt;
+          &lt;input type=&quot;file&quot; id=&quot;fileData&quot; name=&quot;fileData&quot; accept=&quot;image/*&quot; capture &gt;&lt;br&gt;
+          &lt;input id=&quot;tags&quot; placeholder=&quot;tags&quot; /&gt;
+          &lt;button type=&quot;button&quot; onclick=&quot;uploadImage()&quot;&gt;画像アップロード&lt;/button&gt;&lt;br&gt;
+        &lt;/form&gt;
+
+javascript側： 必須箇所のみ抜粋。
+
+function uploadImage() {
+    
+    //jqueryを導入していることが前提です。
+    // フォームデータを取得
+    var formData = new FormData( $('form#fileUpload')[0] );//アップロードする画像の指定
+    
+    //縮小画像を取得。縮小画像をアップロード時に送信すると
+    //「どどんとふ」本体の画像一覧に縮小画像が利用されるので動作が軽くなりユーザーに親切です。
+    //ただ設定は手間なのも事実なので、指定を省略することも可能です。
+    var canvas = document.querySelector('#smallImageCanvas');
+    var base64Data = canvas.toDataURL('image/png');
+    smallImageData = base64Data.replace('data:image/png;base64,', '');
+    formData.append( 'smallImageData', smallImageData ); //縮小画像の指定（省略可能）
+    
+    formData.append( 'webif', "uploadImageData" ); //webifの指定
+    formData.append( 'room', roomNo ); //部屋番号の指定
+    if(roomPass != "" || roomPass == null){
+        formData.append( 'password', roomPass ); //パスワードの指定
+    }
+    
+    formData.append( 'tags', $('#tags').val() ); //タグ名の指定
+    //formData.append( 'imagePassword', "パスワード" ); //絵のパスワードも指定できます（ここでは未使用）
+
+    for(item of formData) {
+        console.log(item);
+    };
+    
+    
+    var url = getServerUrl();
+
+    // POSTでアップロード
+    $.ajax({
+        url  : url,
+        type : "POST",
+        data : formData,
+        async: false,
+        cache       : false,
+        contentType : false,
+        processData : false
+    })
+        .done(function(data, textStatus, jqXHR){
+            $('#fileUploadResult').text( "result : " + data.result + ", fileName:" + data.fileName );
+        })
+        .fail(function(jqXHR, textStatus, errorThrown){
+            alert("fail");
+            console.log( 'ERROR', jqXHR, textStatus, errorThrown );
+        });
+}
+
+</code></pre>
 <br>
 <br>
 <h2 id="aboutLicense">ライセンスについて</h2>
@@ -1157,6 +1252,84 @@ DodontoF : 「どどんとふ」の展開元ディレクトリ<br>
 
 
 <h2 id="history">履歴</h2>
+2017/07/17 Ver.1.48.28<br>
+・ダイスボットをボーンズ＆カーズVer2.02.71対応へ変更。<br>
+・ダイスボットの定義を変更。 prefixs メソッドではなく setPrefixes でコマンド名を定義するようになりました。ochaさんありがとうっ！！！<br>
+　詳細については<u><a href="src_bcdice/test/README.html">「■自作ダイスボットの作り方：その４　そして実装」</a></u>を参照。<br>
+　（従来のコマンドも動きますが、テスト実行時には非推奨の警告が表示されます）<br>
+・他言語のダイスボットを設定した状態でログインした際に、正しいダイスボットが選択されない問題を修正。Nanasuさんありがとうっ！<br>
+・ダイスボットのロール結果に「！」が含まれる場合にダイスの画像が巨大になる不具合を修正。「2D6 ロール！」のように付与メッセージでのみダイス画像が大きくなるように。<br>
+・WEBIFに画像アップロードコマンドのuploadFileを追加。詳細はREADME.htmlの「<u><a href="#webIf_uploadImageData">uploadImageData：画像ファイルアップロード</a></u>」を参照。<br>
+・画像選択時にパスワードの一致しない画像のタグは表示しないように機能変更。<br>
+<br>
+2017/06/22 Ver.1.48.27<br>
+・ダイスボットをボーンズ＆カーズVer2.02.70対応へ変更。<br>
+・ドラクルージュのダイスボットを更新。「ノブレスストーリア」に対応。<br>
+<br>
+2017/06/09 Ver.1.48.26<br>
+・ダイスボットをボーンズ＆カーズVer2.02.69対応へ変更。<br>
+・ビギニングアイドルをビギニングロードに対応。かすかさんありがとうっ！<br>
+・ダイスボットに「ダークソウルTRPG」を追加。anony403さんありがとうっ！<br>
+<br>
+2017/05/14 Ver.1.48.25<br>
+・ダイスボットをボーンズ＆カーズVer2.02.67対応へ変更。<br>
+・ナイトウィザードのダイスボットでファンブル時には常時以外のボーナスを適用しないように修正。Azさん指摘ありがとうっ！<br>
+・ナイトウィザードのダイスボットを2版と3版に分割。ファンブル時の判定処理のみ異なります。<br>
+・ナイトウィザードのダイスボットを元にセブン＝フォートレスメビウスのダイスボットを作成。<br>
+・ダイスボットに「メタルヘッドエクストリーム」を追加。anony403さんありがとうっ！<br>
+・固定したマップマーカーにマウスカーソルを当てた場合にマーカーが展開される問題を修正。Amidaさん指摘ありがとうっ！<br>
+<br>
+2017/04/18 Ver.1.48.24<br>
+・ダイスボットをボーンズ＆カーズVer2.02.66対応へ変更。<br>
+・ダイスボットにデッドラインヒーローズを追加。りえなさんありがとうっ！<br>
+・コード：レイヤードの判定出力を変更。クリティカル値を明示へ。<br>
+<br>
+2017/01/15 Ver.1.48.23<br>
+・ダイスボットをボーンズ＆カーズVer2.02.65対応へ変更。<br>
+・ダイスボットに「ガンドッグ・リヴァイズド」を追加。anony403さんありがとうっ！<br>
+・ダイスボットに「碧空のストレイヴ」を追加。anony403さんありがとうっ！<br>
+・ダイスボットに「青春疾患セラフィザイン」を追加。anony403さんありがとうっ！<br>
+・ダイスボットに「犯罪活劇RPGバッドライフ」を追加。anony403さんありがとうっ！<br>
+<br>
+2016/12/31 Ver.1.48.22<br>
+・ダイスボットをボーンズ＆カーズVer2.02.64対応へ変更。<br>
+・コロッサルハンターの判定でクリティカル／ファンブルが同時発動時にファンブルを優先に。<br>
+<br>
+2016/12/20 Ver.1.48.21<br>
+・ダイスボットをボーンズ＆カーズVer2.02.63対応へ変更。<br>
+・ダイスボットにコロッサルハンターを追加。<br>
+・片道勇者に各種コマンドを追加。<br>
+・SW2.0にファンブル表と絡み表を追加。NKudryavkaさんありがとうっ！<br>
+・クトゥルフのダイスボットに中文版を追加。zeteticlさんありがとうっ！<br>
+<br>
+2016/11/30 Ver.1.48.20<br>
+・WEBIFにメッセージカード追加コマンドaddMessageCardを追加。詳細はREADME.htmlを参照。<br>
+・ロストロイヤルのダイスボットのファンブル時の判定誤りを修正。EthanEricさん、酒田シンジさん、ありがとうっ！<br>
+・中国語メッセージを修正。zeteticlさんありがとうっ！<br>
+<br>
+2016/10/20 Ver.1.48.19<br>
+・チャットパレットのタブをドラッグした後に変更画面が正しく動かなくなる不具合を修正。<br>
+・ダイスボットをボーンズ＆カーズVer2.02.62対応へ変更。<br>
+・ドラクルージュのダイスボットを更新。「ヘレティカノワール」に対応。<br>
+<br>
+2016/09/28 Ver.1.48.18<br>
+・チャットパレットのボタン名が表示されないされない不具合を修正。<br>
+・ダイスボットをボーンズ＆カーズVer2.02.61対応へ変更。<br>
+・エクリプスフェイズのエクセレント／シビア判定の誤りを修正。くまかばさんありがとうっ！<br>
+<br>
+2016/09/22 Ver.1.48.17<br>
+・画面のフォントサイズの変更時にツールチップのフォントサイズも変更されるように改良。<br>
+・チャットパレットのタブ削除復旧処理の不具合を修正。<br>
+・チャットパレットのタブ削除をタブ上のボタンではなく画面のボタンで実施するように仕様変更。<br>
+・ダイスボットをボーンズ＆カーズVer2.02.60対応へ変更。<br>
+・エクリプスフェイズの用語を日本語版表記に。ARHMさんありがとうっ！<br>
+・エースキラージーンを追加。くまかばさんありがとうっ！<br>
+・コード：レイヤードを追加。くまかばさん、erina-alxさん、ありがとうっ！<br>
+・ロストロイヤルを追加。erina-alxさん、ありがとうっ！<br>
+・歯車の塔の探空士(スカイノーツ)を追加。sucRoさんありがとうっ！<br>
+・剣の街の異邦人TRPGを追加。saronpasuさんありがとうっ！<br>
+・ソードワールド2.0に成長ロールを追加。erina-alxさんありがとうっ！<br>
+<br>
 2016/09/01 Ver.1.48.16<br>
 ・メモの複数タブ機能を改良。<br>
 ・メモ画面に合わせて、チャットパレットのタブ機能を改良。<br>

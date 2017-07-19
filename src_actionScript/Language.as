@@ -219,7 +219,7 @@ package {
             p.cancelRecordQuestionTitle = "録画キャンセル確認";
             p.cancelRecordMessage = "「{0}」の録画をキャンセルしました。";
             p.diceOpenMessage = "「{0}」がダイスをオープンしました。出目は{1}({2}面ダイス)です。";
-            p.changeCardOwnerMessage = "「{0}」が「{1}」のカード一式を受け取りました。";
+            p.changeCardSetOwnerMessage = "「{0}」が「{1}」のカード一式を受け取りました。";
             p.returnCardNoNameMessage = "「{0}」が「{1}」の捨て札からカードを引き戻しました。";
             p.returnCardWithNameMessage = "「{0}」が捨て札から「{1}」を引き戻しました。";
             p.alarmSendTo = "送信先";
@@ -839,6 +839,7 @@ package {
             p.chatPalletSave = "セーブ";
             p.chatPalletLoad = "ロード";
             p.chatPalletAddTab = "タブ追加";
+            p.chatPalletDeleteTab = "タブ削除";
             p.chatPalletUndo = "削除戻し";
             p.chatPalletInputSample1 = "チャットパレット入力例：";
             p.chatPalletInputSample2 = "2d6+1 ダイスロール";
@@ -1282,6 +1283,8 @@ package {
             if( lang == null ) {
                 return "";
             }
+            
+            lang = lang.replace('-', '');
             
             var beforeLang:String = currentLanguage;
             var beforeKeys:Array = Utils.getKeys(s, diceBotLangPrefix);

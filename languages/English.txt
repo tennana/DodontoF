@@ -222,7 +222,7 @@ cancelRecordQuestion = Do you stop recod ? if stop it, you lost current recordin
 cancelRecordQuestionTitle = Do you cancel recod ?
 cancelRecordMessage = "{0}" cancel recording.
 diceOpenMessage = "{0}" open the dice. Result is {1} [of {2} side dice]
-changeCardOwnerMessage = "{0}" get {1}'s card set.
+changeCardSetOwnerMessage = "{0}" get {1}'s card set.
 returnCardNoNameMessage = "{0}" return Card from deck "{1}\.
 returnCardWithNameMessage = "{0}" return the "{1}" Card from trush deck.
 alarmSendTo = SendTo
@@ -733,6 +733,7 @@ chatPalletEdit = Edit
 chatPalletSave = Save
 chatPalletLoad = Load
 chatPalletAddTab = Add Tab
+chatPalletDeleteTab = Delete Tab
 chatPalletUndo = Undo
 chatPalletInputSample1 = Chat Palet Sample：
 chatPalletInputSample2 = 2d6+1 Dice Roll
@@ -748,7 +749,7 @@ chatPalletSaveData = Chat Palette Save Data
 channerCoundIsEmptyErrorMessage = Channel Count is Empty. set valid channel
 sendChatErrorMessage = Send Chat Error
 visitorNameSaffix = @Visitor
-diceBotCustomInfomation = ==【{0}Only】=======================\n
+diceBotCustomInfomation = ==【{0} Only】=======================\n
 alarmMessage = [Alarm：{0}]:
 alarmMessageSecond = :{0} seconds after
 needFlashPlayerOverVer10ErrorMessage = If you want to use this, need FlashPlayer Ver.10 or after.
