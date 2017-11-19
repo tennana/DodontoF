@@ -553,6 +553,16 @@ package {
             Log.logging("drawLineOnMap End");
         }
         
+        public function convertDrawToImage(fileData:Object):void {
+            var data:Object = {
+                "tagInfo" : {"roomNumber": saveDataDirIndex},
+				"fileData" : fileData
+            };
+            var obj:Object = getParamObject("convertDrawToImage", data);
+            
+            sendCommandData(obj);
+        }
+        
         public function clearDrawOnMap():void {
             var data:Object = {
             }
@@ -1568,7 +1578,7 @@ package {
             Log.logging("sendCommandData obj : ", obj);
             
             if( isStopRefreshOn ) {
-                Log.loggingFatalError(Language.s.refreshStopedError);
+                Log.logging(Language.s.refreshStopedError);
                 return;
             }
             
