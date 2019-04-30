@@ -462,7 +462,7 @@ class DiceBot
     return text, number, diceText
   end
   
-  def getTableDiceCommandResult(command, tables, isPrintDiceText = true)
+  def getTableCommandResult(command, tables, isPrintDiceText = true)
 
     info = tables[command]
     return nil if info.nil?
@@ -478,11 +478,12 @@ class DiceBot
     
     text, number, diceText =
       case type
-      when /(\d+)D6/
+      when /(\d+)D(\d+)/
         count = $1.to_i
-        limit = 6 * count - (count - 1)
+        diceType = $2.to_i
+        limit = diceType * count - (count - 1)
         table = getTableInfoFromExtraTableText(table, limit)
-        get_table_by_nDx_extratable(table, count, 6)
+        get_table_by_nDx_extratable(table, count, diceType)
       when 'D66', 'D66N'
         table = getTableInfoFromExtraTableText(table, 36)
         item, value = get_table_by_d66(table)
@@ -500,7 +501,7 @@ class DiceBot
         raise "invalid dice Type #{command}"
       end
 
-    text.gsub!("\\n", "\n")
+    text = text.gsub("\\n", "\n")
     text = @@bcdice.rollTableMessageDiceText(text)
     
     return nil if( text.nil? )

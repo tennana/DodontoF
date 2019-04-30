@@ -462,7 +462,7 @@ class BCDice
     end
     
     
-    arg << "->#{@tnick}" unless( @tnick.empty? )
+    arg += "->#{@tnick}" unless( @tnick.empty? )
     
     pointerMode = :sameNick
     output, pointerMode = countHolder.executeCommand(arg, @nick_e, channel, pointerMode)
@@ -737,7 +737,7 @@ class BCDice
     return if( output == "1" )
     
     if( @isTest )
-      output << "###secret dice###"
+      output += "###secret dice###"
     end
     
     broadmsg(output, @nick_e)
@@ -969,7 +969,7 @@ class BCDice
       dice_st_n = ""
       round = 0
       
-      begin
+      loop do
         if( round >= 1 )
           # 振り足し時のダイス読み替え処理用（ダブルクロスはクリティカルでダイス10に読み替える)
           dice_now += @diceBot.getJackUpValueOnAddRoll(dice_n)
@@ -987,7 +987,8 @@ class BCDice
         end
         round += 1
         
-      end while( (dice_add > 1) and (dice_n >= dice_add) )
+        break unless ( (dice_add > 1) and (dice_n >= dice_add) )
+      end
       
       total +=  dice_now
       

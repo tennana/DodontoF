@@ -12,9 +12,9 @@ $LOAD_PATH << File.dirname(__FILE__) # require_relative対策
 # どどんとふ名前空間
 module DodontoF
   # バージョン
-  VERSION = '1.48.32.1'
+  VERSION = '1.49.04'
   # リリース日
-  RELEASE_DATE = '2017/11/19'
+  RELEASE_DATE = '2018/04/30'
 
   # バージョンとリリース日を含む文字列
   #
@@ -1584,6 +1584,7 @@ class DodontoFServer
       characterData['dogTag'] = getWebIfRequestAny(:getWebIfRequestText, 'dogTag', characterData)
       characterData['draggable'] = getWebIfRequestAny(:getWebIfRequestBoolean, 'draggable', characterData)
       characterData['isHide'] = getWebIfRequestAny(:getWebIfRequestBoolean, 'isHide', characterData)
+      characterData['url'] = getWebIfRequestAny(:getWebIfRequestText, 'url', characterData)
       # 'type' => 'characterData',
       # 'imgId' =>  createCharacterImgId(),
       
